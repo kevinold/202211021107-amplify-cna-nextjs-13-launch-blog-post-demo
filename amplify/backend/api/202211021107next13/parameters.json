@@ -1,0 +1,11 @@
+{
+  "AppSyncApiName": "202211021107next13",
+  "DynamoDBBillingMode": "PAY_PER_REQUEST",
+  "DynamoDBEnableServerSideEncryption": false,
+  "AuthCognitoUserPoolId": {
+    "Fn::GetAtt": [
+      "auth202211021107next1385ca99a2",
+      "Outputs.UserPoolId"
+    ]
+  }
+}
