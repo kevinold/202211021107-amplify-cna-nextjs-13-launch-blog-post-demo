@@ -113,16 +113,18 @@ function Home() {
     }
   }
 
-  function StorageImage(key) {
+  function StorageImage(image) {
     const [signedUrl, setSignedUrl] = useState("");
     useEffect(() => {
       const fetchSignedUrl = async () => {
-        const result = await Storage.get(key);
+        const result = await Storage.get(image);
+        console.log("key: ", image);
+        console.log("result: ", result);
         setSignedUrl(result);
       };
 
       fetchSignedUrl();
-    }, [key]);
+    }, [image]);
 
     return <Image src={signedUrl} alt="image" width={50} height={50} />;
   }
@@ -185,7 +187,7 @@ function Home() {
                   <TableCell>{post.title}</TableCell>
                   <TableCell>{post.content}</TableCell>
                   <TableCell>
-                    <StorageImage key={post.image} />
+                    <StorageImage image={post.image} />
                   </TableCell>
                   <TableCell>
                     <Button onClick={() => onDeletePost(post.id)}>
