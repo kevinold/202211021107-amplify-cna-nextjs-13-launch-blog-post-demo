@@ -18,7 +18,7 @@ import { createPost, deletePost } from "../src/graphql/mutations";
 import { listPosts } from "../src/graphql/queries";
 import { onCreatePost } from "../src/graphql/subscriptions";
 
-export async function getServerSideProps({ req }) {
+export async function getStaticProps({ req }) {
   const SSR = withSSRContext({ req });
   const response = await SSR.API.graphql({ query: listPosts });
 
@@ -29,8 +29,8 @@ export async function getServerSideProps({ req }) {
   };
 }
 
-function Home({ serverPosts = [] }) {
-  const [posts, setPosts] = useState(serverPosts);
+function Home() {
+  const [posts, setPosts] = useState([]);
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
 
@@ -43,7 +43,7 @@ function Home({ serverPosts = [] }) {
     fetchPosts();
     const createSub = API.graphql(graphqlOperation(onCreatePost)).subscribe({
       next: ({ value }) => {
-        setPosts((posts) => [...posts, value.data.onCreateTodo]);
+        setPosts((posts) => [...posts, value.data.onCreatePost]);
       },
     });
 
@@ -86,7 +86,6 @@ function Home({ serverPosts = [] }) {
       });
     } catch ({ errors }) {
       console.error(...errors);
-      throw new Error(errors[0].message);
     }
   }
 
@@ -105,14 +104,14 @@ function Home({ serverPosts = [] }) {
             label="Title"
             errorMessage="There is an error"
             name="title"
-            onChange={(e) => setTitle(e.current.value)}
+            onChange={(e) => setTitle(e.target.value)}
           />
 
           <TextField
             name="content"
             label="Content"
             errorMessage="There is an error"
-            onChange={(e) => setContent(e.current.value)}
+            onChange={(e) => setContent(e.target.value)}
           />
 
           <Button marginTop="small" onClick={() => handleCreatePost()}>
