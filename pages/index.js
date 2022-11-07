@@ -1,7 +1,14 @@
+import {
+  Card,
+  Collection,
+  Divider,
+  Heading,
+  View,
+} from "@aws-amplify/ui-react";
 import { withSSRContext } from "aws-amplify";
+import Link from "next/link";
 import React from "react";
 import { listPosts } from "../src/graphql/queries";
-import styles from "../styles/Home.module.css";
 
 export async function getServerSideProps({ req }) {
   const SSR = withSSRContext({ req });
@@ -14,34 +21,30 @@ export async function getServerSideProps({ req }) {
   };
 }
 
-
-export default function Home({ posts = [], user }) {
+export default function Home({ posts = [] }) {
   return (
-    <div className={styles.container}>
-      <main className={styles.main}>
-        <h1 className={styles.title}>Amplify + Next.js</h1>
+    <View>
+      <main>
+        <Heading level={2}>Blog</Heading>
 
-        <p className={styles.description}>
-          <code data-test="posts-count" className={styles.code}>
-            {posts.length}
-          </code>
-          posts
-        </p>
-
-        <div className={styles.grid}>
-          {posts.map((post) => (
-            <a
-              data-test={`post-${post.id}`}
-              className={styles.card}
-              href={`/posts/${post.id}`}
-              key={post.id}
+        <Collection items={posts} type="list" gap="20px" wrap="nowrap">
+          {(post, index) => (
+            <Card
+              key={index}
+              borderRadius="medium"
+              maxWidth="20rem"
+              variation="outlined"
             >
-              <h3>{post.title}</h3>
-              <p>{post.content}</p>
-            </a>
-          ))}
-        </div>
+              <View padding="medium">
+                <Link href={`/posts/${post.id}`} key={post.id}>
+                  <Heading padding="medium">{post.title}</Heading>
+                </Link>
+                <Divider padding="xs" />
+              </View>
+            </Card>
+          )}
+        </Collection>
       </main>
-    </div>
+    </View>
   );
 }
