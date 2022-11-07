@@ -8,11 +8,19 @@ import {
   TableCell,
   TableHead,
   TableRow,
+  Text,
   TextField,
   View,
   withAuthenticator,
 } from "@aws-amplify/ui-react";
-import { API, Auth, graphqlOperation, withSSRContext } from "aws-amplify";
+import {
+  API,
+  Auth,
+  graphqlOperation,
+  Storage,
+  withSSRContext,
+} from "aws-amplify";
+import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import { createPost, deletePost } from "../src/graphql/mutations";
 import { listPosts } from "../src/graphql/queries";
@@ -33,6 +41,7 @@ function Home() {
   const [posts, setPosts] = useState([]);
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+  const [imageFilename, setImageFilename] = useState("");
 
   useEffect(() => {
     const fetchPosts = async () => {
@@ -52,6 +61,19 @@ function Home() {
     };
   }, []);
 
+  async function handleImageUpload(e) {
+    const file = e.target.files[0];
+    try {
+      const data = await Storage.put(file.name, file, {
+        contentType: "image/jpg",
+      });
+      console.log("file data", data);
+      setImageFilename(file.name);
+    } catch (error) {
+      console.log("Error uploading file: ", error);
+    }
+  }
+
   async function handleCreatePost() {
     try {
       const { data } = await API.graphql({
@@ -61,12 +83,14 @@ function Home() {
           input: {
             title,
             content,
+            image: imageFilename,
           },
         },
       });
 
       setTitle("");
       setContent("");
+      setImageFilename("");
     } catch ({ errors }) {
       console.error(...errors);
       throw new Error(errors[0].message);
@@ -87,6 +111,20 @@ function Home() {
     } catch ({ errors }) {
       console.error(...errors);
     }
+  }
+
+  function StorageImage(key) {
+    const [signedUrl, setSignedUrl] = useState("");
+    useEffect(() => {
+      const fetchSignedUrl = async () => {
+        const result = await Storage.get(key);
+        setSignedUrl(result);
+      };
+
+      fetchSignedUrl();
+    }, [key]);
+
+    return <Image src={signedUrl} alt="image" width={50} height={50} />;
   }
 
   return (
@@ -113,8 +151,15 @@ function Home() {
             errorMessage="There is an error"
             onChange={(e) => setContent(e.target.value)}
           />
+          <br />
 
-          <Button marginTop="small" onClick={() => handleCreatePost()}>
+          <Text fontWeight={"bold"}>Upload and image:</Text>
+
+          <input type="file" accept="image/jpg" onChange={handleImageUpload} />
+
+          <br />
+
+          <Button marginTop="large" onClick={() => handleCreatePost()}>
             Create Post
           </Button>
         </form>
@@ -130,6 +175,7 @@ function Home() {
                 <TableCell>Title</TableCell>
                 <TableCell>Content</TableCell>
                 <TableCell></TableCell>
+                <TableCell></TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -138,6 +184,9 @@ function Home() {
                   <TableCell>{post.id}</TableCell>
                   <TableCell>{post.title}</TableCell>
                   <TableCell>{post.content}</TableCell>
+                  <TableCell>
+                    <StorageImage key={post.image} />
+                  </TableCell>
                   <TableCell>
                     <Button onClick={() => onDeletePost(post.id)}>
                       Delete
