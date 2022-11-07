@@ -1,6 +1,6 @@
 {
   "auth": {
-    "202211021107next1385ca99a2": {
+    "202211021107next13d817f7b0": {
       "service": "Cognito",
       "providerPlugin": "awscloudformation",
       "dependsOn": [],
@@ -34,7 +34,7 @@
       "dependsOn": [
         {
           "category": "auth",
-          "resourceName": "202211021107next1385ca99a2",
+          "resourceName": "202211021107next13d817f7b0",
           "attributes": [
             "UserPoolId"
           ]
@@ -46,7 +46,7 @@
             "authenticationType": "API_KEY",
             "apiKeyConfig": {
               "apiKeyExpirationDays": 365,
-              "apiKeyExpirationDate": "2023-11-03T21:53:47.162Z",
+              "apiKeyExpirationDate": "2023-11-07T17:08:44.278Z",
               "description": "default"
             }
           },
@@ -54,7 +54,7 @@
             {
               "authenticationType": "AMAZON_COGNITO_USER_POOLS",
               "userPoolConfig": {
-                "userPoolId": "auth202211021107next1385ca99a2"
+                "userPoolId": "auth202211021107next13d817f7b0"
               }
             }
           ]
