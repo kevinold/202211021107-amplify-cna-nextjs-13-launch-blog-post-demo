@@ -23,10 +23,9 @@ export async function getServerSideProps({ req }) {
 
 export default function Home({ posts = [] }) {
   return (
-    <View>
-      <main>
-        <Heading level={2}>Blog</Heading>
-
+    <View padding="2rem">
+      <Heading level={2}>Blog</Heading>
+      <View as="main" padding="2rem">
         <Collection items={posts} type="list" gap="20px" wrap="nowrap">
           {(post, index) => (
             <Card
@@ -44,7 +43,7 @@ export default function Home({ posts = [] }) {
             </Card>
           )}
         </Collection>
-      </main>
+      </View>
     </View>
   );
 }
