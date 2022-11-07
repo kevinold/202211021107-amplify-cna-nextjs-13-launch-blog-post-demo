@@ -28,12 +28,7 @@ export default function Home({ posts = [] }) {
       <View as="main" padding="2rem">
         <Collection items={posts} type="list" gap="20px" wrap="nowrap">
           {(post, index) => (
-            <Card
-              key={index}
-              borderRadius="medium"
-              maxWidth="20rem"
-              variation="outlined"
-            >
+            <Card key={index} maxWidth="50rem">
               <View padding="medium">
                 <Link href={`/posts/${post.id}`} key={post.id}>
                   <Heading padding="medium">{post.title}</Heading>
