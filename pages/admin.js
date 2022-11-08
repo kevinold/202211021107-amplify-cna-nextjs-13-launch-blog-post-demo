@@ -63,12 +63,13 @@ function Home() {
 
   async function handleImageUpload(e) {
     const file = e.target.files[0];
+    const fileName = Date.now() + ".jpg";
     try {
-      const data = await Storage.put(file.name, file, {
+      const data = await Storage.put(fileName, file, {
         contentType: "image/jpg",
       });
       console.log("file data", data);
-      setImageFilename(file.name);
+      setImageFilename(fileName);
     } catch (error) {
       console.log("Error uploading file: ", error);
     }
