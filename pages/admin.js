@@ -114,7 +114,8 @@ function Home() {
     }
   }
 
-  function StorageImage(image) {
+  function StorageImage({ image }) {
+    console.log("image", image);
     const [signedUrl, setSignedUrl] = useState("");
     useEffect(() => {
       const fetchSignedUrl = async () => {
