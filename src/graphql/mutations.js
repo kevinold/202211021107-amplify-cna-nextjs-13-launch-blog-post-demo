@@ -1,48 +1,51 @@
 /* eslint-disable */
 // this is an auto generated file. This will be overwritten
 
-export const createPost = /* GraphQL */ `
-  mutation CreatePost(
-    $input: CreatePostInput!
-    $condition: ModelPostConditionInput
+export const createFeature = /* GraphQL */ `
+  mutation CreateFeature(
+    $input: CreateFeatureInput!
+    $condition: ModelFeatureConditionInput
   ) {
-    createPost(input: $input, condition: $condition) {
+    createFeature(input: $input, condition: $condition) {
       id
       title
-      content
-      image
+      released
+      description
+      internalDoc
       createdAt
       updatedAt
       owner
     }
   }
 `;
-export const updatePost = /* GraphQL */ `
-  mutation UpdatePost(
-    $input: UpdatePostInput!
-    $condition: ModelPostConditionInput
+export const updateFeature = /* GraphQL */ `
+  mutation UpdateFeature(
+    $input: UpdateFeatureInput!
+    $condition: ModelFeatureConditionInput
   ) {
-    updatePost(input: $input, condition: $condition) {
+    updateFeature(input: $input, condition: $condition) {
       id
       title
-      content
-      image
+      released
+      description
+      internalDoc
       createdAt
       updatedAt
       owner
     }
   }
 `;
-export const deletePost = /* GraphQL */ `
-  mutation DeletePost(
-    $input: DeletePostInput!
-    $condition: ModelPostConditionInput
+export const deleteFeature = /* GraphQL */ `
+  mutation DeleteFeature(
+    $input: DeleteFeatureInput!
+    $condition: ModelFeatureConditionInput
   ) {
-    deletePost(input: $input, condition: $condition) {
+    deleteFeature(input: $input, condition: $condition) {
       id
       title
-      content
-      image
+      released
+      description
+      internalDoc
       createdAt
       updatedAt
       owner

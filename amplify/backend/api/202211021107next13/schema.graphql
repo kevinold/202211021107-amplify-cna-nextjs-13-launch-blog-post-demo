@@ -1,8 +1,9 @@
-type Post
+type Feature
   @model
   @auth(rules: [{ allow: owner }, { allow: public, operations: [read] }]) {
   id: ID!
   title: String!
-  content: String!
-  image: String
+  released: Boolean!
+  description: String
+  internalDoc: String @auth(rules: [{ allow: owner }])
 }

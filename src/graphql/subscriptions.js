@@ -1,48 +1,51 @@
 /* eslint-disable */
 // this is an auto generated file. This will be overwritten
 
-export const onCreatePost = /* GraphQL */ `
-  subscription OnCreatePost(
-    $filter: ModelSubscriptionPostFilterInput
+export const onCreateFeature = /* GraphQL */ `
+  subscription OnCreateFeature(
+    $filter: ModelSubscriptionFeatureFilterInput
     $owner: String
   ) {
-    onCreatePost(filter: $filter, owner: $owner) {
+    onCreateFeature(filter: $filter, owner: $owner) {
       id
       title
-      content
-      image
+      released
+      description
+      internalDoc
       createdAt
       updatedAt
       owner
     }
   }
 `;
-export const onUpdatePost = /* GraphQL */ `
-  subscription OnUpdatePost(
-    $filter: ModelSubscriptionPostFilterInput
+export const onUpdateFeature = /* GraphQL */ `
+  subscription OnUpdateFeature(
+    $filter: ModelSubscriptionFeatureFilterInput
     $owner: String
   ) {
-    onUpdatePost(filter: $filter, owner: $owner) {
+    onUpdateFeature(filter: $filter, owner: $owner) {
       id
       title
-      content
-      image
+      released
+      description
+      internalDoc
       createdAt
       updatedAt
       owner
     }
   }
 `;
-export const onDeletePost = /* GraphQL */ `
-  subscription OnDeletePost(
-    $filter: ModelSubscriptionPostFilterInput
+export const onDeleteFeature = /* GraphQL */ `
+  subscription OnDeleteFeature(
+    $filter: ModelSubscriptionFeatureFilterInput
     $owner: String
   ) {
-    onDeletePost(filter: $filter, owner: $owner) {
+    onDeleteFeature(filter: $filter, owner: $owner) {
       id
       title
-      content
-      image
+      released
+      description
+      internalDoc
       createdAt
       updatedAt
       owner
