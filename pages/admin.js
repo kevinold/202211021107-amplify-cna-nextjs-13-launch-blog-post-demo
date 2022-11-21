@@ -22,37 +22,37 @@ import {
 } from "aws-amplify";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
-import { createPost, deletePost } from "../src/graphql/mutations";
-import { listPosts } from "../src/graphql/queries";
-import { onCreatePost } from "../src/graphql/subscriptions";
+import { createFeature, deleteFeature } from "../src/graphql/mutations";
+import { listFeatures } from "../src/graphql/queries";
+import { onCreateFeature } from "../src/graphql/subscriptions";
 
 export async function getStaticProps({ req }) {
   const SSR = withSSRContext({ req });
-  const response = await SSR.API.graphql({ query: listPosts });
+  const response = await SSR.API.graphql({ query: listFeatures });
 
   return {
     props: {
-      serverPosts: response.data.listPosts.items,
+      serverPosts: response.data.listFeatures.items,
     },
   };
 }
 
-function Home() {
-  const [posts, setPosts] = useState([]);
+function Admin() {
+  const [features, setFeatures] = useState([]);
   const [title, setTitle] = useState("");
-  const [content, setContent] = useState("");
+  const [description, setDescription] = useState("");
   const [imageFilename, setImageFilename] = useState("");
 
   useEffect(() => {
-    const fetchPosts = async () => {
-      const result = await API.graphql(graphqlOperation(listPosts));
-      setPosts(result.data.listPosts.items);
+    const fetchFeatures = async () => {
+      const result = await API.graphql(graphqlOperation(listFeatures));
+      setFeatures(result.data.listFeatures.items);
     };
 
-    fetchPosts();
-    const createSub = API.graphql(graphqlOperation(onCreatePost)).subscribe({
+    fetchFeatures();
+    const createSub = API.graphql(graphqlOperation(onCreateFeature)).subscribe({
       next: ({ value }) => {
-        setPosts((posts) => [...posts, value.data.onCreatePost]);
+        setFeatures((features) => [...features, value.data.onCreateFeature]);
       },
     });
 
@@ -75,22 +75,22 @@ function Home() {
     }
   }
 
-  async function handleCreatePost() {
+  async function handleCreateFeature() {
     try {
       const { data } = await API.graphql({
         authMode: "AMAZON_COGNITO_USER_POOLS",
-        query: createPost,
+        query: createFeature,
         variables: {
           input: {
             title,
-            content,
+            description,
             image: imageFilename,
           },
         },
       });
 
       setTitle("");
-      setContent("");
+      setDescription("");
       setImageFilename("");
     } catch ({ errors }) {
       console.error(...errors);
@@ -98,11 +98,11 @@ function Home() {
     }
   }
 
-  async function onDeletePost(id) {
+  async function onDeleteFeature(id) {
     try {
       const { data } = await API.graphql({
         authMode: "AMAZON_COGNITO_USER_POOLS",
-        query: deletePost,
+        query: deleteFeature,
         variables: {
           input: {
             id,
@@ -134,13 +134,13 @@ function Home() {
   return (
     <View padding="2rem">
       <Flex direction={"row"}>
-        <Heading level={2}>Blog Admin</Heading>
+        <Heading level={2}>Roadmap Admin</Heading>
         <Button type="button" onClick={() => Auth.signOut()}>
           Sign out
         </Button>
       </Flex>
       <View as="main" paddingTop="2rem" width={"50%"}>
-        <Heading level={5}>New Post</Heading>
+        <Heading level={5}>New Feature</Heading>
         <form>
           <TextField
             label="Title"
@@ -150,10 +150,10 @@ function Home() {
           />
 
           <TextField
-            name="content"
-            label="Content"
+            name="description"
+            label="Description"
             errorMessage="There is an error"
-            onChange={(e) => setContent(e.target.value)}
+            onChange={(e) => setDescription(e.target.value)}
           />
           <br />
 
@@ -163,36 +163,36 @@ function Home() {
 
           <br />
 
-          <Button marginTop="large" onClick={() => handleCreatePost()}>
-            Create Post
+          <Button marginTop="large" onClick={() => handleCreateFeature()}>
+            Create Feature
           </Button>
         </form>
       </View>
       <Divider padding="medium" />
-      {posts.length === 0 && <View paddingTop="2rem">No Posts</View>}
-      {posts.length > 0 && (
+      {features.length === 0 && <View paddingTop="2rem">No features</View>}
+      {features.length > 0 && (
         <View paddingTop="2rem">
           <Table>
             <TableHead>
               <TableRow>
                 <TableCell>ID</TableCell>
                 <TableCell>Title</TableCell>
-                <TableCell>Content</TableCell>
+                <TableCell>Description</TableCell>
                 <TableCell></TableCell>
                 <TableCell></TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {posts.map((post) => (
-                <TableRow key={post.id}>
-                  <TableCell>{post.id}</TableCell>
-                  <TableCell>{post.title}</TableCell>
-                  <TableCell>{post.content}</TableCell>
+              {features.map((feature) => (
+                <TableRow key={feature.id}>
+                  <TableCell>{feature.id}</TableCell>
+                  <TableCell>{feature.title}</TableCell>
+                  <TableCell>{feature.content}</TableCell>
                   <TableCell>
-                    <StorageImage image={post.image} />
+                    <StorageImage image={feature.image} />
                   </TableCell>
                   <TableCell>
-                    <Button onClick={() => onDeletePost(post.id)}>
+                    <Button onClick={() => onDeleteFeature(feature.id)}>
                       Delete
                     </Button>
                   </TableCell>
@@ -206,4 +206,4 @@ function Home() {
   );
 }
 
-export default withAuthenticator(Home);
+export default withAuthenticator(Admin);
