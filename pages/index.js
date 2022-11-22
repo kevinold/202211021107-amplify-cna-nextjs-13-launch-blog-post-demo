@@ -11,7 +11,7 @@ export async function getServerSideProps({ req }) {
     props: {
       posts: response.data.listFeatures.items,
     },
-    revalidate: 3600, // revalidate every hour
+    //revalidate: 3600, // revalidate every hour
   };
 }
 
