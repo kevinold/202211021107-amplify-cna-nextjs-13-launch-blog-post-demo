@@ -132,7 +132,10 @@ function Admin() {
       fetchSignedUrl();
     }, [image]);
 
-    return <Image src={signedUrl} alt="image" width={50} height={50} />;
+    if (signedUrl) {
+      return <Image src={signedUrl} alt="image" width={50} height={50} />;
+    }
+    return <></>;
   }
 
   return (
@@ -202,7 +205,7 @@ function Admin() {
                   <TableCell>{feature.title}</TableCell>
                   <TableCell>{feature.content}</TableCell>
                   <TableCell>
-                    <StorageImage image={feature.image} />
+                    <StorageImage image={feature.internalDoc} />
                   </TableCell>
                   <TableCell>
                     <Button onClick={() => onDeleteFeature(feature.id)}>
