@@ -3,6 +3,7 @@ import {
   Divider,
   Flex,
   Heading,
+  SwitchField,
   Table,
   TableBody,
   TableCell,
@@ -41,6 +42,7 @@ function Admin() {
   const [features, setFeatures] = useState([]);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [isReleased, setReleased] = useState(false);
   const [imageFilename, setImageFilename] = useState("");
 
   useEffect(() => {
@@ -67,6 +69,7 @@ function Admin() {
     try {
       const data = await Storage.put(fileName, file, {
         contentType: "image/jpg",
+        cacheControl: "max-age=31536000",
       });
       console.log("file data", data);
       setImageFilename(fileName);
@@ -84,7 +87,8 @@ function Admin() {
           input: {
             title,
             description,
-            image: imageFilename,
+            released: isReleased,
+            internalDoc: imageFilename,
           },
         },
       });
@@ -155,6 +159,15 @@ function Admin() {
             errorMessage="There is an error"
             onChange={(e) => setDescription(e.target.value)}
           />
+
+          <SwitchField
+            isChecked={isReleased}
+            isDisabled={false}
+            label="Released?"
+            labelPosition="start"
+            onChange={() => setReleased(!isReleased)}
+          />
+
           <br />
 
           <Text fontWeight={"bold"}>Upload and image:</Text>
