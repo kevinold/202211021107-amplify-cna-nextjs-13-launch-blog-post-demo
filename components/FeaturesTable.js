@@ -7,11 +7,11 @@ import {
   TableRow,
   View,
 } from "@aws-amplify/ui-react";
-import { API, graphqlOperation } from "aws-amplify";
+import { API, graphqlOperation, Storage } from "aws-amplify";
 import React, { useEffect, useState } from "react";
 import { deleteFeature } from "../src/graphql/mutations";
 import { listFeatures } from "../src/graphql/queries";
-import { onCreateFeature } from "../src/graphql/subscriptions";
+import { onCreateFeature, onDeleteFeature } from "../src/graphql/subscriptions";
 import StorageImage from "./StorageImage";
 
 function FeaturesTable({ serverFeatures = [] }) {
@@ -30,12 +30,49 @@ function FeaturesTable({ serverFeatures = [] }) {
       },
     });
 
+    /*
+    const updateSub = API.graphql(graphqlOperation(onUpdateTodo)).subscribe({
+      next: ({ value }) => {
+        setTodos(todos => {
+          const toUpdateIndex = todos.findIndex(item => item.id === value.data.onUpdateTodo.id)
+          if (toUpdateIndex === - 1) { // If the todo doesn't exist, treat it like an "add"
+            return [...todos, value.data.onUpdateTodo]
+          }
+          return [...todos.slice(0, toUpdateIndex), value.data.onUpdateTodo, ...todos.slice(toUpdateIndex + 1)]
+        })
+      }
+    })
+    */
+
+    const deleteSub = API.graphql(graphqlOperation(onDeleteFeature)).subscribe({
+      next: ({ value }) => {
+        setFeatures((features) => {
+          const toDeleteIndex = features.findIndex(
+            (item) => item.id === value.data.onDeleteFeature.id
+          );
+          return [
+            ...features.slice(0, toDeleteIndex),
+            ...features.slice(toDeleteIndex + 1),
+          ];
+        });
+      },
+    });
+
     return () => {
       createSub.unsubscribe();
+      deleteSub.unsubscribe();
     };
   }, []);
 
-  async function onDeleteFeature(id) {
+  async function onDeleteInternalDoc(internalDoc) {
+    try {
+      await Storage.remove(internalDoc);
+    } catch ({ errors }) {
+      console.error(...errors);
+    }
+  }
+
+  async function onConfirmDeleteFeature(id) {
     try {
       await API.graphql({
         authMode: "AMAZON_COGNITO_USER_POOLS",
@@ -76,7 +113,14 @@ function FeaturesTable({ serverFeatures = [] }) {
                     <StorageImage image={feature.internalDoc} />
                   </TableCell>
                   <TableCell>
-                    <Button onClick={() => onDeleteFeature(feature.id)}>
+                    <Button
+                      onClick={async () =>
+                        await Promise.all([
+                          onDeleteInternalDoc(feature.internalDoc),
+                          onConfirmDeleteFeature(feature.id),
+                        ])
+                      }
+                    >
                       Delete
                     </Button>
                   </TableCell>
