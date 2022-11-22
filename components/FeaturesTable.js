@@ -65,10 +65,9 @@ function FeaturesTable({ serverFeatures = [] }) {
       fetchSignedUrl();
     }, [image]);
 
-    if (signedUrl) {
-      return <Image src={signedUrl} alt="image" width={50} height={50} />;
-    }
-    return <></>;
+    return signedUrl ? (
+      <Image src={signedUrl} alt="image" width={50} height={50} />
+    ) : null;
   }
 
   return (
