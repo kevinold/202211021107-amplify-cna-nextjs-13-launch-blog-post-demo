@@ -7,12 +7,12 @@ import {
   TableRow,
   View,
 } from "@aws-amplify/ui-react";
-import { API, graphqlOperation, Storage } from "aws-amplify";
-import Image from "next/image";
+import { API, graphqlOperation } from "aws-amplify";
 import React, { useEffect, useState } from "react";
 import { deleteFeature } from "../src/graphql/mutations";
 import { listFeatures } from "../src/graphql/queries";
 import { onCreateFeature } from "../src/graphql/subscriptions";
+import StorageImage from "./StorageImage";
 
 function FeaturesTable({ serverFeatures = [] }) {
   const [features, setFeatures] = useState(serverFeatures);
@@ -49,25 +49,6 @@ function FeaturesTable({ serverFeatures = [] }) {
     } catch ({ errors }) {
       console.error(...errors);
     }
-  }
-
-  function StorageImage({ image }) {
-    console.log("image", image);
-    const [signedUrl, setSignedUrl] = useState("");
-    useEffect(() => {
-      const fetchSignedUrl = async () => {
-        const result = await Storage.get(image);
-        console.log("key: ", image);
-        console.log("result: ", result);
-        setSignedUrl(result);
-      };
-
-      fetchSignedUrl();
-    }, [image]);
-
-    return signedUrl ? (
-      <Image src={signedUrl} alt="image" width={50} height={50} />
-    ) : null;
   }
 
   return (
