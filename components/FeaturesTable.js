@@ -72,7 +72,7 @@ function FeaturesTable({ serverFeatures = [] }) {
     }
   }
 
-  async function onConfirmDeleteFeature(id) {
+  async function handleDeleteFeature(id) {
     try {
       await API.graphql({
         authMode: "AMAZON_COGNITO_USER_POOLS",
@@ -96,8 +96,7 @@ function FeaturesTable({ serverFeatures = [] }) {
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell>ID</TableCell>
-                <TableCell>Title</TableCell>
+                <TableCell>Feature</TableCell>
                 <TableCell>Description</TableCell>
                 <TableCell></TableCell>
                 <TableCell></TableCell>
@@ -106,7 +105,6 @@ function FeaturesTable({ serverFeatures = [] }) {
             <TableBody>
               {features.map((feature) => (
                 <TableRow key={feature.id}>
-                  <TableCell>{feature.id}</TableCell>
                   <TableCell>{feature.title}</TableCell>
                   <TableCell>{feature.content}</TableCell>
                   <TableCell>
@@ -117,7 +115,7 @@ function FeaturesTable({ serverFeatures = [] }) {
                       onClick={async () =>
                         await Promise.all([
                           onDeleteInternalDoc(feature.internalDoc),
-                          onConfirmDeleteFeature(feature.id),
+                          handleDeleteFeature(feature.id),
                         ])
                       }
                     >
