@@ -7,7 +7,7 @@ import {
 } from "@aws-amplify/ui-react";
 import { Auth, withSSRContext } from "aws-amplify";
 import React from "react";
-import CreateFeatureForm from "../components/CreateFeatureForm";
+import FeatureForm from "../components/FeatureForm";
 import FeaturesTable from "../components/FeaturesTable";
 import { listFeatures } from "../src/graphql/queries";
 
@@ -31,7 +31,7 @@ function Admin({ serverFeatures }) {
           Sign out
         </Button>
       </Flex>
-      <CreateFeatureForm />
+      <FeatureForm />
       <FeaturesTable serverFeatures={serverFeatures} />
     </View>
   );
