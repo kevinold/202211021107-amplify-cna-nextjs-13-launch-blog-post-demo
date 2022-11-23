@@ -9,7 +9,7 @@ export async function getServerSideProps({ req }) {
 
   return {
     props: {
-      posts: response.data.listFeatures.items,
+      features: response.data.listFeatures.items,
     },
     //revalidate: 3600, // revalidate every hour
   };
