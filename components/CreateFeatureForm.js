@@ -7,26 +7,23 @@ import {
   View,
 } from "@aws-amplify/ui-react";
 import { API, Storage } from "aws-amplify";
-import Image from "next/image";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { createFeature } from "../src/graphql/mutations";
 
 function CreateFeatureForm() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [isReleased, setReleased] = useState(false);
-  const [imageFilename, setImageFilename] = useState("");
+  const [internalDoc, setInternalDoc] = useState("");
 
-  async function handleImageUpload(e) {
+  async function handleUpload(e) {
     const file = e.target.files[0];
-    const fileName = Date.now() + ".jpg";
+    const fileName = `${Date.now()}-${file.name}`;
     try {
       const data = await Storage.put(fileName, file, {
-        contentType: "image/jpg",
-        cacheControl: "max-age=31536000",
+        contentType: file.type,
       });
-      console.log("file data", data);
-      setImageFilename(fileName);
+      setInternalDoc(fileName);
     } catch (error) {
       console.log("Error uploading file: ", error);
     }
@@ -34,7 +31,7 @@ function CreateFeatureForm() {
 
   async function handleCreateFeature() {
     try {
-      const { data } = await API.graphql({
+      await API.graphql({
         authMode: "AMAZON_COGNITO_USER_POOLS",
         query: createFeature,
         variables: {
@@ -42,38 +39,19 @@ function CreateFeatureForm() {
             title,
             description,
             released: isReleased,
-            internalDoc: imageFilename,
+            internalDoc: internalDoc,
           },
         },
       });
 
       setTitle("");
       setDescription("");
-      setImageFilename("");
+      setReleased(false);
+      setInternalDoc("");
     } catch ({ errors }) {
       console.error(...errors);
       throw new Error(errors[0].message);
     }
-  }
-
-  function StorageImage({ image }) {
-    console.log("image", image);
-    const [signedUrl, setSignedUrl] = useState("");
-    useEffect(() => {
-      const fetchSignedUrl = async () => {
-        const result = await Storage.get(image);
-        console.log("key: ", image);
-        console.log("result: ", result);
-        setSignedUrl(result);
-      };
-
-      fetchSignedUrl();
-    }, [image]);
-
-    if (signedUrl) {
-      return <Image src={signedUrl} alt="image" width={50} height={50} />;
-    }
-    return <></>;
   }
 
   return (
@@ -104,9 +82,8 @@ function CreateFeatureForm() {
 
         <br />
 
-        <Text fontWeight={"bold"}>Upload and image:</Text>
-
-        <input type="file" accept="image/jpg" onChange={handleImageUpload} />
+        <Text fontWeight={"bold"}>Upload a file:</Text>
+        <input type="file" onChange={handleUpload} />
 
         <br />
 
