@@ -10,11 +10,17 @@ import { API, Storage } from "aws-amplify";
 import React, { useState } from "react";
 import { createFeature } from "../src/graphql/mutations";
 
-function CreateFeatureForm() {
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [isReleased, setReleased] = useState(false);
-  const [internalDoc, setInternalDoc] = useState("");
+function CreateFeatureForm({ feature = null }) {
+  const [title, setTitle] = useState((feature && feature["title"]) || "");
+  const [description, setDescription] = useState(
+    (feature && feature["description"]) || ""
+  );
+  const [isReleased, setReleased] = useState(
+    (feature && feature["released"]) || false
+  );
+  const [internalDoc, setInternalDoc] = useState(
+    (feature && feature["released"]) || ""
+  );
 
   async function handleUpload(e) {
     const file = e.target.files[0];
@@ -56,7 +62,7 @@ function CreateFeatureForm() {
 
   return (
     <View paddingTop="2rem" width={"50%"}>
-      <Heading level={5}>New Feature</Heading>
+      <Heading level={5}>{feature ? "Edit" : "New"} Feature</Heading>
       <form>
         <TextField
           label="Title"
