@@ -1,4 +1,10 @@
-import { Flex, Heading, View, withAuthenticator } from "@aws-amplify/ui-react";
+import {
+  Divider,
+  Flex,
+  Heading,
+  View,
+  withAuthenticator,
+} from "@aws-amplify/ui-react";
 import { Auth, withSSRContext } from "aws-amplify";
 import Link from "next/link";
 import React from "react";
@@ -26,11 +32,12 @@ function Admin({ serverFeatures }) {
         </Link>
         <Flex direction={"row"} alignItems={"center"}>
           <Link href={"/admin-new-feature"}>New Feature</Link>
-          <Link href="#" onClick={() => Auth.signOut()}>
+          <Link href="" onClick={() => Auth.signOut()}>
             Sign out
           </Link>
         </Flex>
       </Flex>
+      <Divider paddingTop={15} />
       <FeatureForm />
       <FeaturesTable serverFeatures={serverFeatures} />
     </View>
