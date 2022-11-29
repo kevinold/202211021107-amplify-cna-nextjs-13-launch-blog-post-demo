@@ -1,4 +1,5 @@
 import {
+  Button,
   Divider,
   Flex,
   Heading,
@@ -31,14 +32,13 @@ function Admin({ serverFeatures }) {
           <Heading level={2}>Roadmap Admin</Heading>
         </Link>
         <Flex direction={"row"} alignItems={"center"}>
-          <Link href={"/admin-new-feature"}>New Feature</Link>
-          <Link href="" onClick={() => Auth.signOut()}>
+          <Button type="button" onClick={() => Auth.signOut()}>
             Sign out
-          </Link>
+          </Button>
         </Flex>
       </Flex>
-      <Divider paddingTop={15} />
-      <Flex direction={"row"} paddingTop="2rem">
+      <Divider marginTop={"medium"} marginBottom={"xxl"} />
+      <Flex direction={"row"}>
         <FeatureForm />
         <FeaturesTable serverFeatures={serverFeatures} />
       </Flex>
