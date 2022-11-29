@@ -38,8 +38,10 @@ function Admin({ serverFeatures }) {
         </Flex>
       </Flex>
       <Divider paddingTop={15} />
-      <FeatureForm />
-      <FeaturesTable serverFeatures={serverFeatures} />
+      <Flex direction={"row"} paddingTop="2rem">
+        <FeatureForm />
+        <FeaturesTable serverFeatures={serverFeatures} />
+      </Flex>
     </View>
   );
 }

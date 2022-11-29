@@ -88,47 +88,44 @@ function FeaturesTable({ serverFeatures = [] }) {
     }
   }
 
+  if (features.length === 0) {
+    return <View>No features</View>;
+  }
+
   return (
-    <View padding="2rem">
-      {features.length === 0 && <View paddingTop="2rem">No features</View>}
-      {features.length > 0 && (
-        <View paddingTop="2rem">
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Feature</TableCell>
-                <TableCell>Description</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {features.map((feature) => (
-                <TableRow key={feature.id}>
-                  <TableCell>{feature.title}</TableCell>
-                  <TableCell>{feature.content}</TableCell>
-                  <TableCell>
-                    <StorageImage image={feature.internalDoc} />
-                  </TableCell>
-                  <TableCell>
-                    <Button
-                      onClick={async () =>
-                        await Promise.all([
-                          onDeleteInternalDoc(feature.internalDoc),
-                          handleDeleteFeature(feature.id),
-                        ])
-                      }
-                    >
-                      Delete
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </View>
-      )}
-    </View>
+    <Table>
+      <TableHead>
+        <TableRow>
+          <TableCell>Feature</TableCell>
+          <TableCell>Description</TableCell>
+          <TableCell></TableCell>
+          <TableCell></TableCell>
+        </TableRow>
+      </TableHead>
+      <TableBody>
+        {features.map((feature) => (
+          <TableRow key={feature.id}>
+            <TableCell>{feature.title}</TableCell>
+            <TableCell>{feature.content}</TableCell>
+            <TableCell>
+              <StorageImage image={feature.internalDoc} />
+            </TableCell>
+            <TableCell>
+              <Button
+                onClick={async () =>
+                  await Promise.all([
+                    onDeleteInternalDoc(feature.internalDoc),
+                    handleDeleteFeature(feature.id),
+                  ])
+                }
+              >
+                Delete
+              </Button>
+            </TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
   );
 }
 

@@ -61,7 +61,7 @@ function CreateFeatureForm({ feature = null }) {
   }
 
   return (
-    <View paddingTop="2rem" width={"50%"}>
+    <View>
       <Heading level={5}>{feature ? "Edit" : "New"} Feature</Heading>
       <form>
         <TextField
