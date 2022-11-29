@@ -1,11 +1,6 @@
-import {
-  Button,
-  Flex,
-  Heading,
-  View,
-  withAuthenticator,
-} from "@aws-amplify/ui-react";
+import { Flex, Heading, View, withAuthenticator } from "@aws-amplify/ui-react";
 import { Auth, withSSRContext } from "aws-amplify";
+import Link from "next/link";
 import React from "react";
 import FeatureForm from "../components/FeatureForm";
 import FeaturesTable from "../components/FeaturesTable";
@@ -25,11 +20,16 @@ export async function getStaticProps({ req }) {
 function Admin({ serverFeatures }) {
   return (
     <View padding="2rem">
-      <Flex direction={"row"}>
-        <Heading level={2}>Roadmap Admin</Heading>
-        <Button type="button" onClick={() => Auth.signOut()}>
-          Sign out
-        </Button>
+      <Flex direction={"row"} justifyContent={"space-between"}>
+        <Link href={"/admin"}>
+          <Heading level={2}>Roadmap Admin</Heading>
+        </Link>
+        <Flex direction={"row"} alignItems={"center"}>
+          <Link href={"/admin-new-feature"}>New Feature</Link>
+          <Link href="#" onClick={() => Auth.signOut()}>
+            Sign out
+          </Link>
+        </Flex>
       </Flex>
       <FeatureForm />
       <FeaturesTable serverFeatures={serverFeatures} />
