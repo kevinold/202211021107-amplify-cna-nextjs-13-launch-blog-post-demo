@@ -27,18 +27,18 @@ export async function getStaticProps({ req }) {
 function Admin({ serverFeatures }) {
   return (
     <View padding="2rem">
-      <Flex direction={"row"} justifyContent={"space-between"}>
+      <Flex justifyContent={"space-between"}>
         <Link href={"/admin"}>
           <Heading level={2}>Roadmap Admin</Heading>
         </Link>
-        <Flex direction={"row"} alignItems={"center"}>
+        <Flex alignItems={"center"}>
           <Button type="button" onClick={() => Auth.signOut()}>
             Sign out
           </Button>
         </Flex>
       </Flex>
       <Divider marginTop={"medium"} marginBottom={"xxl"} />
-      <Flex direction={"row"}>
+      <Flex>
         <FeatureForm />
         <FeaturesTable serverFeatures={serverFeatures} />
       </Flex>
