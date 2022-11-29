@@ -14,7 +14,7 @@ import { listFeatures } from "../src/graphql/queries";
 import { onCreateFeature, onDeleteFeature } from "../src/graphql/subscriptions";
 import StorageImage from "./StorageImage";
 
-function FeaturesTable({ serverFeatures = [] }) {
+function FeaturesTable({ serverFeatures = [], setActiveFeature }) {
   const [features, setFeatures] = useState(serverFeatures);
 
   useEffect(() => {
@@ -108,10 +108,16 @@ function FeaturesTable({ serverFeatures = [] }) {
             <TableCell>{feature.title}</TableCell>
             <TableCell>{feature.content}</TableCell>
             <TableCell>
-              <StorageImage image={feature.internalDoc} />
+              {feature.internalDoc ? (
+                <StorageImage image={feature.internalDoc} />
+              ) : undefined}
             </TableCell>
             <TableCell>
+              <Button size="small" onClick={() => setActiveFeature(feature)}>
+                Edit
+              </Button>
               <Button
+                size="small"
                 onClick={async () =>
                   await Promise.all([
                     onDeleteInternalDoc(feature.internalDoc),

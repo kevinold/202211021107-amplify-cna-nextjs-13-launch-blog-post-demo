@@ -8,21 +8,26 @@ import {
   View,
 } from "@aws-amplify/ui-react";
 import { API, Storage } from "aws-amplify";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { createFeature, updateFeature } from "../src/graphql/mutations";
+import StorageImage from "./StorageImage";
 
-function CreateFeatureForm({ feature = null }) {
-  const [id, setId] = useState((feature && feature["id"]) || undefined);
-  const [title, setTitle] = useState((feature && feature["title"]) || "");
-  const [description, setDescription] = useState(
-    (feature && feature["description"]) || ""
-  );
-  const [isReleased, setReleased] = useState(
-    (feature && feature["released"]) || false
-  );
-  const [internalDoc, setInternalDoc] = useState(
-    (feature && feature["released"]) || ""
-  );
+function FeatureForm({ feature = null, setActiveFeature }) {
+  const [id, setId] = useState(undefined);
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [isReleased, setReleased] = useState(false);
+  const [internalDoc, setInternalDoc] = useState("");
+
+  useEffect(() => {
+    if (feature) {
+      setId(feature.id);
+      setTitle(feature.title);
+      setDescription(feature.description);
+      setReleased(feature.released);
+      setInternalDoc(feature.internalDoc);
+    }
+  }, [feature]);
 
   async function handleUpload(e) {
     const file = e.target.files[0];
@@ -36,6 +41,7 @@ function CreateFeatureForm({ feature = null }) {
       console.log("Error uploading file: ", error);
     }
   }
+
   function resetFormFields() {
     setId(undefined);
     setTitle("");
@@ -60,6 +66,7 @@ function CreateFeatureForm({ feature = null }) {
         },
       });
 
+      feature && setActiveFeature(undefined);
       resetFormFields();
     } catch ({ errors }) {
       console.error(...errors);
@@ -74,6 +81,7 @@ function CreateFeatureForm({ feature = null }) {
       </Heading>
       <Flex direction={"column"}>
         <TextField
+          defaultValue={title}
           label="Title"
           errorMessage="There is an error"
           name="title"
@@ -81,6 +89,7 @@ function CreateFeatureForm({ feature = null }) {
         />
 
         <TextField
+          defaultValue={description}
           name="description"
           label="Description"
           errorMessage="There is an error"
@@ -95,8 +104,14 @@ function CreateFeatureForm({ feature = null }) {
           onChange={() => setReleased(!isReleased)}
         />
 
-        <Text fontWeight={"bold"}>Upload a file:</Text>
-        <input type="file" onChange={handleUpload} />
+        {feature && internalDoc ? (
+          <StorageImage image={internalDoc} />
+        ) : (
+          <div>
+            <Text fontWeight={"bold"}>Upload a file:</Text>
+            <input type="file" onChange={handleUpload} />
+          </div>
+        )}
 
         <Button marginTop="large" onClick={() => handleSaveFeature()}>
           Save
@@ -106,4 +121,4 @@ function CreateFeatureForm({ feature = null }) {
   );
 }
 
-export default CreateFeatureForm;
+export default FeatureForm;

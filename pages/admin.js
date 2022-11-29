@@ -8,7 +8,7 @@ import {
 } from "@aws-amplify/ui-react";
 import { Auth, withSSRContext } from "aws-amplify";
 import Link from "next/link";
-import React from "react";
+import React, { useState } from "react";
 import FeatureForm from "../components/FeatureForm";
 import FeaturesTable from "../components/FeaturesTable";
 import { listFeatures } from "../src/graphql/queries";
@@ -25,6 +25,7 @@ export async function getStaticProps({ req }) {
 }
 
 function Admin({ serverFeatures }) {
+  const [activeFeature, setActiveFeature] = useState(undefined);
   return (
     <View padding="2rem">
       <Flex justifyContent={"space-between"}>
@@ -39,8 +40,14 @@ function Admin({ serverFeatures }) {
       </Flex>
       <Divider marginTop={"medium"} marginBottom={"xxl"} />
       <Flex>
-        <FeatureForm />
-        <FeaturesTable serverFeatures={serverFeatures} />
+        <FeatureForm
+          feature={activeFeature}
+          setActiveFeature={setActiveFeature}
+        />
+        <FeaturesTable
+          serverFeatures={serverFeatures}
+          setActiveFeature={setActiveFeature}
+        />
       </Flex>
     </View>
   );
