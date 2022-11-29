@@ -81,7 +81,7 @@ function FeatureForm({ feature = null, setActiveFeature }) {
       </Heading>
       <Flex direction={"column"}>
         <TextField
-          defaultValue={title}
+          value={title}
           label="Title"
           errorMessage="There is an error"
           name="title"
@@ -89,7 +89,7 @@ function FeatureForm({ feature = null, setActiveFeature }) {
         />
 
         <TextField
-          defaultValue={description}
+          value={description}
           name="description"
           label="Description"
           errorMessage="There is an error"
