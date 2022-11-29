@@ -1,5 +1,6 @@
 import {
   Button,
+  Flex,
   Heading,
   SwitchField,
   Text,
@@ -8,9 +9,10 @@ import {
 } from "@aws-amplify/ui-react";
 import { API, Storage } from "aws-amplify";
 import React, { useState } from "react";
-import { createFeature } from "../src/graphql/mutations";
+import { createFeature, updateFeature } from "../src/graphql/mutations";
 
 function CreateFeatureForm({ feature = null }) {
+  const [id, setId] = useState((feature && feature["id"]) || undefined);
   const [title, setTitle] = useState((feature && feature["title"]) || "");
   const [description, setDescription] = useState(
     (feature && feature["description"]) || ""
@@ -34,14 +36,22 @@ function CreateFeatureForm({ feature = null }) {
       console.log("Error uploading file: ", error);
     }
   }
+  function resetFormFields() {
+    setId(undefined);
+    setTitle("");
+    setDescription("");
+    setReleased(false);
+    setInternalDoc("");
+  }
 
-  async function handleCreateFeature() {
+  async function handleSaveFeature() {
     try {
       await API.graphql({
         authMode: "AMAZON_COGNITO_USER_POOLS",
-        query: createFeature,
+        query: feature ? updateFeature : createFeature,
         variables: {
           input: {
+            id: feature ? id : undefined,
             title,
             description,
             released: isReleased,
@@ -50,10 +60,7 @@ function CreateFeatureForm({ feature = null }) {
         },
       });
 
-      setTitle("");
-      setDescription("");
-      setReleased(false);
-      setInternalDoc("");
+      resetFormFields();
     } catch ({ errors }) {
       console.error(...errors);
       throw new Error(errors[0].message);
@@ -62,8 +69,10 @@ function CreateFeatureForm({ feature = null }) {
 
   return (
     <View>
-      <Heading level={5}>{feature ? "Edit" : "New"} Feature</Heading>
-      <form>
+      <Heading marginBottom="medium" level={5}>
+        {feature ? "Edit" : "New"} Feature
+      </Heading>
+      <Flex direction={"column"}>
         <TextField
           label="Title"
           errorMessage="There is an error"
@@ -86,17 +95,13 @@ function CreateFeatureForm({ feature = null }) {
           onChange={() => setReleased(!isReleased)}
         />
 
-        <br />
-
         <Text fontWeight={"bold"}>Upload a file:</Text>
         <input type="file" onChange={handleUpload} />
 
-        <br />
-
-        <Button marginTop="large" onClick={() => handleCreateFeature()}>
-          Create Feature
+        <Button marginTop="large" onClick={() => handleSaveFeature()}>
+          Save
         </Button>
-      </form>
+      </Flex>
     </View>
   );
 }
