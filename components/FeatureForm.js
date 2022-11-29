@@ -113,9 +113,17 @@ function FeatureForm({ feature = null, setActiveFeature }) {
           </div>
         )}
 
-        <Button marginTop="large" onClick={() => handleSaveFeature()}>
-          Save
-        </Button>
+        <Flex marginTop="large">
+          <Button
+            onClick={() => {
+              setActiveFeature(undefined);
+              resetFormFields();
+            }}
+          >
+            Cancel
+          </Button>
+          <Button onClick={() => handleSaveFeature()}>Save</Button>
+        </Flex>
       </Flex>
     </View>
   );
