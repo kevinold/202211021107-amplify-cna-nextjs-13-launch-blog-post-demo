@@ -6,5 +6,4 @@ type Feature
   released: Boolean!
   description: String
   internalDoc: String
-  #internalDoc: String @auth(rules: [{ allow: owner }])
 }
