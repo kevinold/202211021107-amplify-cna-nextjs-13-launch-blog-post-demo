@@ -1,0 +1,54 @@
+version: 1
+backend:
+  phases:
+    build:
+      commands:
+        - '# Execute Amplify CLI with the helper script'
+        - amplifyPush --simple
+frontend:
+  phases:
+    preBuild:
+      commands:
+        - nvm use ${VERSION_NODE_17}
+        - npm ci
+    build:
+      commands:
+        - nvm use ${VERSION_NODE_17}
+        - npm run build
+  artifacts:
+    baseDirectory: .next
+    files:
+      - '**/*'
+  cache:
+    paths:
+      - node_modules/**/*
+      - ~/.cache/**/*
+test:
+  artifacts:
+    baseDirectory: cypress
+    configFilePath: "**/mochawesome.json"
+    files:
+      - "**/*.png"
+      - "**/*.mp4"
+  phases:
+    preTest:
+      commands:
+        - nvm use ${VERSION_NODE_17}
+        - npm ci
+        - npm install wait-on
+        - npm install pm2
+        - npm install mocha mochawesome mochawesome-merge mochawesome-report-generator
+        - npm run test:provisionCognitoUsers
+        - npm run build
+        - #npx pm2 start npm -- start
+        - npm run start
+        - 'npx wait-on --timeout 60 http://localhost:3000'
+    test:
+      commands:
+        - nvm use ${VERSION_NODE_17}
+        - 'npx cypress run --reporter mochawesome --reporter-options "reportDir=cypress/report/mochawesome-report,overwrite=false,html=false,json=true,timestamp=mmddyyyy_HHMMss"'
+    postTest:
+      commands:
+        - nvm use ${VERSION_NODE_17}
+        - npx mochawesome-merge cypress/report/mochawesome-report/mochawesome*.json > cypress/report/mochawesome.json
+        - npx pm2 kill

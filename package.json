@@ -6,7 +6,12 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "build:aws-exports-mjs": "cp src/aws-exports.js src/aws-exports.mjs",
+    "precy:open": "yarn build:aws-exports-mjs",
+    "cy:open": "cypress open --e2e",
+    "pretest:provisionCognitoUsers": "npm run build:aws-exports-mjs",
+    "test:provisionCognitoUsers": "node --experimental-json-modules scripts/provisionCognitoUsers.mjs"
   },
   "dependencies": {
     "@aws-amplify/ui-react": "^3.5.11",
@@ -17,8 +22,37 @@
     "react-dom": "18.2.0"
   },
   "devDependencies": {
+    "aws-sdk": "^2.1264.0",
+    "cypress": "^11.2.0",
+    "dotenv": "^16.0.3",
     "eslint": "8.26.0",
-    "eslint-config-next": "13.0.1"
+    "eslint-config-next": "13.0.1",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-cypress": "^2.12.1",
+    "eslint-plugin-prettier": "^4.2.1",
+    "http-server": "^14.1.1",
+    "mocha": "^10.1.0",
+    "mochawesome": "^7.1.3",
+    "mochawesome-merge": "^4.2.1",
+    "mochawesome-report-generator": "^6.2.0",
+    "wait-on": "^6.0.1"
+  },
+  "eslintConfig": {
+    "env": {
+      "cypress/globals": true
+    },
+    "extends": [
+      "react-app",
+      "plugin:prettier/recommended",
+      "plugin:cypress/recommended"
+    ],
+    "plugins": [
+      "cypress",
+      "prettier"
+    ],
+    "rules": {
+      "no-unused-expressions": 0
+    }
   },
   "prettier": {}
 }
