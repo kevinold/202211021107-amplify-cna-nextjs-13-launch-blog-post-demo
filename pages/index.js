@@ -18,14 +18,12 @@ export async function getServerSideProps({ req }) {
 export default function Home({ features = [] }) {
   return (
     <View padding="2rem">
-      <Heading level={2}>Roadmap</Heading>
+      <Heading level={2}>AmpliCar Roadmap Delivered Features</Heading>
       <View as="main" padding="2rem">
-        <Collection items={features} type="list" gap="20px" wrap="nowrap">
+        <Collection items={features} type="list" gap="5px" wrap="nowrap">
           {(feature, index) => (
             <Card key={index} maxWidth="50rem">
-              <View padding="medium">
-                <Heading padding="medium">{feature.title}</Heading>
-              </View>
+              <Heading>{feature.title}</Heading>
             </Card>
           )}
         </Collection>

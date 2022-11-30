@@ -30,7 +30,7 @@ function Admin({ serverFeatures }) {
     <View padding="2rem">
       <Flex justifyContent={"space-between"}>
         <Link href={"/admin"}>
-          <Heading level={2}>Roadmap Admin</Heading>
+          <Heading level={2}>AmpliCar Roadmap Admin</Heading>
         </Link>
         <Flex alignItems={"center"}>
           <Button type="button" onClick={() => Auth.signOut()}>
