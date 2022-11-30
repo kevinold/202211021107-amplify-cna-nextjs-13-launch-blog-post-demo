@@ -105,8 +105,8 @@ function FeaturesTable({ serverFeatures = [], setActiveFeature }) {
     <Table>
       <TableHead>
         <TableRow>
-          <TableCell>Feature</TableCell>
-          <TableCell>Released</TableCell>
+          <TableCell as="th">Feature</TableCell>
+          <TableCell as="th">Released</TableCell>
           <TableCell></TableCell>
           <TableCell></TableCell>
         </TableRow>
