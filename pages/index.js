@@ -1,17 +1,20 @@
 import { Card, Collection, Heading, View } from "@aws-amplify/ui-react";
-import { withSSRContext } from "aws-amplify";
+import { API, graphqlOperation } from "aws-amplify";
 import React from "react";
 import { listFeatures } from "../src/graphql/queries";
 
-export async function getServerSideProps({ req }) {
-  const SSR = withSSRContext({ req });
-  const response = await SSR.API.graphql({ query: listFeatures });
+export async function getStaticProps() {
+  const response = await API.graphql(
+    graphqlOperation(listFeatures, {
+      filter: { released: { eq: true } },
+    })
+  );
 
   return {
     props: {
       features: response.data.listFeatures.items,
     },
-    //revalidate: 3600, // revalidate every hour
+    revalidate: 30, //3600 // revalidate every hour
   };
 }
 
