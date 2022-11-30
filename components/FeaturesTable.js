@@ -97,7 +97,7 @@ function FeaturesTable({ serverFeatures = [], setActiveFeature }) {
       <TableHead>
         <TableRow>
           <TableCell>Feature</TableCell>
-          <TableCell>Description</TableCell>
+          <TableCell>Released</TableCell>
           <TableCell></TableCell>
           <TableCell></TableCell>
         </TableRow>
@@ -106,7 +106,7 @@ function FeaturesTable({ serverFeatures = [], setActiveFeature }) {
         {features.map((feature) => (
           <TableRow key={feature.id}>
             <TableCell>{feature.title}</TableCell>
-            <TableCell>{feature.content}</TableCell>
+            <TableCell>{feature.released ? "Yes" : "No"}</TableCell>
             <TableCell>
               {feature.internalDoc ? (
                 <StorageImage image={feature.internalDoc} />
