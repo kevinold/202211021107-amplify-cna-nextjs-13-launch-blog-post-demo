@@ -11,7 +11,11 @@ import { API, graphqlOperation, Storage } from "aws-amplify";
 import React, { useEffect, useState } from "react";
 import { deleteFeature } from "../src/graphql/mutations";
 import { listFeatures } from "../src/graphql/queries";
-import { onCreateFeature, onDeleteFeature } from "../src/graphql/subscriptions";
+import {
+  onCreateFeature,
+  onDeleteFeature,
+  onUpdateFeature,
+} from "../src/graphql/subscriptions";
 import StorageImage from "./StorageImage";
 
 function FeaturesTable({ serverFeatures = [], setActiveFeature }) {
@@ -30,19 +34,23 @@ function FeaturesTable({ serverFeatures = [], setActiveFeature }) {
       },
     });
 
-    /*
-    const updateSub = API.graphql(graphqlOperation(onUpdateTodo)).subscribe({
+    const updateSub = API.graphql(graphqlOperation(onUpdateFeature)).subscribe({
       next: ({ value }) => {
-        setTodos(todos => {
-          const toUpdateIndex = todos.findIndex(item => item.id === value.data.onUpdateTodo.id)
-          if (toUpdateIndex === - 1) { // If the todo doesn't exist, treat it like an "add"
-            return [...todos, value.data.onUpdateTodo]
+        setFeatures((features) => {
+          const toUpdateIndex = features.findIndex(
+            (item) => item.id === value.data.onUpdateFeature.id
+          );
+          if (toUpdateIndex === -1) {
+            return [...features, value.data.onUpdateFeature];
           }
-          return [...todos.slice(0, toUpdateIndex), value.data.onUpdateTodo, ...todos.slice(toUpdateIndex + 1)]
-        })
-      }
-    })
-    */
+          return [
+            ...features.slice(0, toUpdateIndex),
+            value.data.onUpdateFeature,
+            ...features.slice(toUpdateIndex + 1),
+          ];
+        });
+      },
+    });
 
     const deleteSub = API.graphql(graphqlOperation(onDeleteFeature)).subscribe({
       next: ({ value }) => {
@@ -60,6 +68,7 @@ function FeaturesTable({ serverFeatures = [], setActiveFeature }) {
 
     return () => {
       createSub.unsubscribe();
+      updateSub.unsubscribe();
       deleteSub.unsubscribe();
     };
   }, []);
