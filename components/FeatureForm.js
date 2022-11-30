@@ -79,7 +79,7 @@ function FeatureForm({ feature = null, setActiveFeature }) {
       <Heading marginBottom="medium" level={5}>
         {feature ? "Edit" : "New"} Feature
       </Heading>
-      <Flex direction={"column"}>
+      <Flex direction={"column"} basis={"max-content"}>
         <TextField
           value={title}
           label="Title"
