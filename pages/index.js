@@ -21,7 +21,7 @@ export async function getStaticProps() {
 export default function Home({ features = [] }) {
   return (
     <View padding="2rem">
-      <Heading level={2}>AmpliCar Roadmap Delivered Features</Heading>
+      <Heading level={2}>AmpliCar Roadmap</Heading>
       <View as="main" padding="2rem">
         <Collection items={features} type="list" gap="5px" wrap="nowrap">
           {(feature, index) => (
