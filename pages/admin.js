@@ -13,7 +13,7 @@ import FeatureForm from "../components/FeatureForm";
 import FeaturesTable from "../components/FeaturesTable";
 import { listFeatures } from "../src/graphql/queries";
 
-export async function getStaticProps({ req }) {
+export async function getServerSideProps({ req }) {
   const SSR = withSSRContext({ req });
   const response = await SSR.API.graphql({ query: listFeatures });
 
