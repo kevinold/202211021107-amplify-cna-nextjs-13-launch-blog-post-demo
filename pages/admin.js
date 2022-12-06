@@ -19,12 +19,12 @@ export async function getServerSideProps({ req }) {
 
   return {
     props: {
-      serverFeatures: response.data.listFeatures.items,
+      initialFeatures: response.data.listFeatures.items,
     },
   };
 }
 
-function Admin({ serverFeatures }) {
+function Admin({ initialFeatures }) {
   const [activeFeature, setActiveFeature] = useState(undefined);
   return (
     <View padding="2rem">
@@ -45,7 +45,7 @@ function Admin({ serverFeatures }) {
           setActiveFeature={setActiveFeature}
         />
         <FeaturesTable
-          serverFeatures={serverFeatures}
+          initialFeatures={initialFeatures}
           setActiveFeature={setActiveFeature}
         />
       </Flex>

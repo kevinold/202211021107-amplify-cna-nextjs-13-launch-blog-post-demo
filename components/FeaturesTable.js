@@ -18,8 +18,8 @@ import {
 } from "../src/graphql/subscriptions";
 import StorageImage from "./StorageImage";
 
-function FeaturesTable({ serverFeatures = [], setActiveFeature }) {
-  const [features, setFeatures] = useState(serverFeatures);
+function FeaturesTable({ initialFeatures = [], setActiveFeature }) {
+  const [features, setFeatures] = useState(initialFeatures);
 
   useEffect(() => {
     const fetchFeatures = async () => {
