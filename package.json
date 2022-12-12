@@ -9,7 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@aws-amplify/ui-react": "^4.1.0",
+    "@aws-amplify/ui-react": "^4.2.0",
     "aws-amplify": "^5.0.4",
     "next": "13.0.1",
     "prettier": "^2.7.1",
