@@ -1,6 +1,5 @@
 import {
   Button,
-  FileUploader,
   Flex,
   Heading,
   SwitchField,
@@ -33,7 +32,7 @@ function FeatureForm({ feature = null, setActiveFeature }) {
     const file = e.target.files[0];
     const fileName = `${Date.now()}-${file.name}`;
     try {
-      const data = await Storage.put(fileName, file, {
+      await Storage.put(fileName, file, {
         contentType: file.type,
       });
       setInternalDoc(fileName);
@@ -128,28 +127,11 @@ function FeatureForm({ feature = null, setActiveFeature }) {
             </Text>
           </View>
         ) : (
-          <FileUploader
-            shouldAutoProceed={true}
-            onSuccess={({ key }) => setInternalDoc(key)}
-            maxFiles={1}
-            acceptedFileTypes={[".doc", ".pdf"]}
-            variation="button"
-            accessLevel="public"
-          />
-        )}
-
-        {/* {feature && internalDoc ? (
           <div>
-            <Text fontWeight={"bold"}>Attached:</Text>
-            <Text>{internalDoc}</Text>
-            <Button onClick={handleRemoveDoc}>Remove</Button>
-          </div>
-        ) : (
-          <div>
-            <Text fontWeight={"bold"}>Upload a file:</Text>
+            <Text>Upload a file:</Text>
             <input type="file" onChange={handleUploadDoc} />
           </div>
-        )} */}
+        )}
 
         <Flex marginTop="large">
           <Button
