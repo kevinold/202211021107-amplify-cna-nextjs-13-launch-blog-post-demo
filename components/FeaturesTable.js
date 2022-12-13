@@ -16,7 +16,6 @@ import {
   onDeleteFeature,
   onUpdateFeature,
 } from "../src/graphql/subscriptions";
-import StorageImage from "./StorageImage";
 
 function FeaturesTable({ initialFeatures = [], setActiveFeature }) {
   const [features, setFeatures] = useState(initialFeatures);
@@ -73,6 +72,27 @@ function FeaturesTable({ initialFeatures = [], setActiveFeature }) {
     };
   }, []);
 
+  function downloadBlob(blob, filename) {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename || "download";
+    const clickHandler = () => {
+      setTimeout(() => {
+        URL.revokeObjectURL(url);
+        a.removeEventListener("click", clickHandler);
+      }, 150);
+    };
+    a.addEventListener("click", clickHandler, false);
+    a.click();
+    return a;
+  }
+
+  async function handleDownload(fileKey) {
+    const result = await Storage.get(fileKey, { download: true });
+    downloadBlob(result.Body, fileKey);
+  }
+
   async function onDeleteInternalDoc(internalDoc) {
     try {
       await Storage.remove(internalDoc);
@@ -117,8 +137,13 @@ function FeaturesTable({ initialFeatures = [], setActiveFeature }) {
             <TableCell>{feature.title}</TableCell>
             <TableCell>{feature.released ? "Yes" : "No"}</TableCell>
             <TableCell>
-              {feature.internalDoc ? (
+              {/* {feature.internalDoc ? (
                 <StorageImage image={feature.internalDoc} />
+              ) : undefined} */}
+              {feature.internalDoc ? (
+                <div onClick={() => handleDownload(feature.internalDoc)}>
+                  Download
+                </div>
               ) : undefined}
             </TableCell>
             <TableCell>
