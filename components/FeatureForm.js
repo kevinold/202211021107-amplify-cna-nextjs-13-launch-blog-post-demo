@@ -1,5 +1,6 @@
 import {
   Button,
+  FileUploader,
   Flex,
   Heading,
   SwitchField,
@@ -10,7 +11,6 @@ import {
 import { API, Storage } from "aws-amplify";
 import React, { useEffect, useState } from "react";
 import { createFeature, updateFeature } from "../src/graphql/mutations";
-import StorageImage from "./StorageImage";
 
 function FeatureForm({ feature = null, setActiveFeature }) {
   const [id, setId] = useState(undefined);
@@ -29,7 +29,7 @@ function FeatureForm({ feature = null, setActiveFeature }) {
     }
   }, [feature]);
 
-  async function handleUpload(e) {
+  async function handleUploadDoc(e) {
     const file = e.target.files[0];
     const fileName = `${Date.now()}-${file.name}`;
     try {
@@ -39,6 +39,15 @@ function FeatureForm({ feature = null, setActiveFeature }) {
       setInternalDoc(fileName);
     } catch (error) {
       console.log("Error uploading file: ", error);
+    }
+  }
+
+  async function handleRemoveDoc() {
+    try {
+      await Storage.remove(internalDoc);
+      setInternalDoc("");
+    } catch (error) {
+      console.log("Error removing file: ", error);
     }
   }
 
@@ -105,13 +114,42 @@ function FeatureForm({ feature = null, setActiveFeature }) {
         />
 
         {feature && internalDoc ? (
-          <StorageImage image={internalDoc} />
+          <View
+            as="div"
+            border="1px solid var(--amplify-colors-black)"
+            padding="1rem"
+          >
+            <Text>Attachment:</Text>
+            <Text fontWeight={"bold"}>
+              {internalDoc}{" "}
+              <Button size="small" onClick={handleRemoveDoc}>
+                X
+              </Button>
+            </Text>
+          </View>
+        ) : (
+          <FileUploader
+            shouldAutoProceed={true}
+            onSuccess={({ key }) => setInternalDoc(key)}
+            maxFiles={1}
+            acceptedFileTypes={[".doc", ".pdf"]}
+            variation="button"
+            accessLevel="public"
+          />
+        )}
+
+        {/* {feature && internalDoc ? (
+          <div>
+            <Text fontWeight={"bold"}>Attached:</Text>
+            <Text>{internalDoc}</Text>
+            <Button onClick={handleRemoveDoc}>Remove</Button>
+          </div>
         ) : (
           <div>
             <Text fontWeight={"bold"}>Upload a file:</Text>
-            <input type="file" onChange={handleUpload} />
+            <input type="file" onChange={handleUploadDoc} />
           </div>
-        )}
+        )} */}
 
         <Flex marginTop="large">
           <Button
