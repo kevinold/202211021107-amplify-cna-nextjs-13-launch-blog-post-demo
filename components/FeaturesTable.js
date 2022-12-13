@@ -127,7 +127,7 @@ function FeaturesTable({ initialFeatures = [], setActiveFeature }) {
         <TableRow>
           <TableCell as="th">Feature</TableCell>
           <TableCell as="th">Released</TableCell>
-          <TableCell></TableCell>
+          <TableCell as="th">Document</TableCell>
           <TableCell></TableCell>
         </TableRow>
       </TableHead>
@@ -141,9 +141,9 @@ function FeaturesTable({ initialFeatures = [], setActiveFeature }) {
                 <StorageImage image={feature.internalDoc} />
               ) : undefined} */}
               {feature.internalDoc ? (
-                <div onClick={() => handleDownload(feature.internalDoc)}>
-                  Download
-                </div>
+                <Button onClick={() => handleDownload(feature.internalDoc)}>
+                  Download File
+                </Button>
               ) : undefined}
             </TableCell>
             <TableCell>
