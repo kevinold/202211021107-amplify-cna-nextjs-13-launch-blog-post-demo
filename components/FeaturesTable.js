@@ -127,7 +127,6 @@ function FeaturesTable({ initialFeatures = [], setActiveFeature }) {
         <TableRow>
           <TableCell as="th">Feature</TableCell>
           <TableCell as="th">Released</TableCell>
-          <TableCell as="th">Document</TableCell>
           <TableCell></TableCell>
         </TableRow>
       </TableHead>
@@ -136,16 +135,6 @@ function FeaturesTable({ initialFeatures = [], setActiveFeature }) {
           <TableRow key={feature.id}>
             <TableCell>{feature.title}</TableCell>
             <TableCell>{feature.released ? "Yes" : "No"}</TableCell>
-            <TableCell>
-              {/* {feature.internalDoc ? (
-                <StorageImage image={feature.internalDoc} />
-              ) : undefined} */}
-              {feature.internalDoc ? (
-                <Button onClick={() => handleDownload(feature.internalDoc)}>
-                  Download File
-                </Button>
-              ) : undefined}
-            </TableCell>
             <TableCell>
               <Button size="small" onClick={() => setActiveFeature(feature)}>
                 Edit
@@ -161,6 +150,14 @@ function FeaturesTable({ initialFeatures = [], setActiveFeature }) {
               >
                 Delete
               </Button>
+              {feature.internalDoc ? (
+                <Button
+                  size="small"
+                  onClick={() => handleDownload(feature.internalDoc)}
+                >
+                  Download File
+                </Button>
+              ) : undefined}
             </TableCell>
           </TableRow>
         ))}
