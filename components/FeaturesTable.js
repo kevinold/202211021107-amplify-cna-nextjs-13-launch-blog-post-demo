@@ -1,5 +1,6 @@
 import {
   Button,
+  Flex,
   Table,
   TableBody,
   TableCell,
@@ -136,28 +137,30 @@ function FeaturesTable({ initialFeatures = [], setActiveFeature }) {
             <TableCell>{feature.title}</TableCell>
             <TableCell>{feature.released ? "Yes" : "No"}</TableCell>
             <TableCell>
-              <Button size="small" onClick={() => setActiveFeature(feature)}>
-                Edit
-              </Button>
-              <Button
-                size="small"
-                onClick={async () =>
-                  await Promise.all([
-                    onDeleteInternalDoc(feature.internalDoc),
-                    handleDeleteFeature(feature.id),
-                  ])
-                }
-              >
-                Delete
-              </Button>
-              {feature.internalDoc ? (
+              <Flex>
+                <Button size="small" onClick={() => setActiveFeature(feature)}>
+                  Edit
+                </Button>
                 <Button
                   size="small"
-                  onClick={() => handleDownload(feature.internalDoc)}
+                  onClick={async () =>
+                    await Promise.all([
+                      onDeleteInternalDoc(feature.internalDoc),
+                      handleDeleteFeature(feature.id),
+                    ])
+                  }
                 >
-                  Download File
+                  Delete
                 </Button>
-              ) : undefined}
+                {feature.internalDoc ? (
+                  <Button
+                    size="small"
+                    onClick={() => handleDownload(feature.internalDoc)}
+                  >
+                    Download File
+                  </Button>
+                ) : undefined}
+              </Flex>
             </TableCell>
           </TableRow>
         ))}
