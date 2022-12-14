@@ -145,6 +145,7 @@ function FeaturesTable({ initialFeatures = [], setActiveFeature }) {
                   size="small"
                   onClick={async () =>
                     await Promise.all([
+                      // delete the document via Storage
                       onDeleteInternalDoc(feature.internalDoc),
                       handleDeleteFeature(feature.id),
                     ])

@@ -113,11 +113,7 @@ function FeatureForm({ feature = null, setActiveFeature }) {
         />
 
         {feature && internalDoc ? (
-          <View
-            as="div"
-            border="1px solid var(--amplify-colors-black)"
-            padding="1rem"
-          >
+          <div>
             <Text>Attachment:</Text>
             <Text fontWeight={"bold"}>
               {internalDoc}{" "}
@@ -125,7 +121,7 @@ function FeatureForm({ feature = null, setActiveFeature }) {
                 X
               </Button>
             </Text>
-          </View>
+          </div>
         ) : (
           <div>
             <Text>Upload a file:</Text>
