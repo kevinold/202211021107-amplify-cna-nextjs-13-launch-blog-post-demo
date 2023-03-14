@@ -10,6 +10,7 @@ import {
 } from "@aws-amplify/ui-react";
 import { API, graphqlOperation, Storage } from "aws-amplify";
 import React, { useEffect, useState } from "react";
+import useSWR from "swr";
 import { deleteFeature } from "../src/graphql/mutations";
 import { listFeatures } from "../src/graphql/queries";
 import {
@@ -19,15 +20,10 @@ import {
 } from "../src/graphql/subscriptions";
 
 function FeaturesTable({ initialFeatures = [], setActiveFeature }) {
-  const [features, setFeatures] = useState(initialFeatures);
+  const [, setFeatures] = useState(initialFeatures);
+  const { data: features, isLoading } = useSWR(listFeatures);
 
   useEffect(() => {
-    const fetchFeatures = async () => {
-      const result = await API.graphql(graphqlOperation(listFeatures));
-      setFeatures(result.data.listFeatures.items);
-    };
-
-    fetchFeatures();
     const createSub = API.graphql(graphqlOperation(onCreateFeature)).subscribe({
       next: ({ value }) => {
         setFeatures((features) => [...features, value.data.onCreateFeature]);
@@ -118,7 +114,7 @@ function FeaturesTable({ initialFeatures = [], setActiveFeature }) {
     }
   }
 
-  if (features.length === 0) {
+  if (isLoading) {
     return <View>No features</View>;
   }
 
@@ -132,7 +128,7 @@ function FeaturesTable({ initialFeatures = [], setActiveFeature }) {
         </TableRow>
       </TableHead>
       <TableBody>
-        {features.map((feature) => (
+        {features.data.listFeatures.items.map((feature) => (
           <TableRow key={feature.id}>
             <TableCell>{feature.title}</TableCell>
             <TableCell>{feature.released ? "Yes" : "No"}</TableCell>
