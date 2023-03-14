@@ -21,7 +21,10 @@ import {
 
 function FeaturesTable({ initialFeatures = [], setActiveFeature }) {
   const [, setFeatures] = useState(initialFeatures);
-  const { data: features, isLoading } = useSWR(listFeatures);
+  const { data: listFeaturesData, isLoading } = useSWR(listFeatures, {
+    fallbackData: initialFeatures,
+  });
+  const features = listFeaturesData?.data?.listFeatures?.items;
 
   useEffect(() => {
     const createSub = API.graphql(graphqlOperation(onCreateFeature)).subscribe({
@@ -114,7 +117,7 @@ function FeaturesTable({ initialFeatures = [], setActiveFeature }) {
     }
   }
 
-  if (isLoading) {
+  if (initialFeatures.length === 0 && isLoading) {
     return <View>No features</View>;
   }
 
@@ -128,7 +131,7 @@ function FeaturesTable({ initialFeatures = [], setActiveFeature }) {
         </TableRow>
       </TableHead>
       <TableBody>
-        {features.data.listFeatures.items.map((feature) => (
+        {features.map((feature) => (
           <TableRow key={feature.id}>
             <TableCell>{feature.title}</TableCell>
             <TableCell>{feature.released ? "Yes" : "No"}</TableCell>

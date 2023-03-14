@@ -15,11 +15,11 @@ import { listFeatures } from "../src/graphql/queries";
 
 export async function getServerSideProps({ req }) {
   const SSR = withSSRContext({ req });
-  const response = await SSR.API.graphql({ query: listFeatures });
+  const initialFeatures = await SSR.API.graphql({ query: listFeatures });
 
   return {
     props: {
-      initialFeatures: response.data.listFeatures.items,
+      initialFeatures,
     },
   };
 }
