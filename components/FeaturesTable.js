@@ -11,6 +11,7 @@ import {
 import { API, graphqlOperation, Storage } from "aws-amplify";
 import React, { useEffect, useState } from "react";
 import useSWR from "swr";
+import useSWRSubscription from "swr/subscription";
 import { deleteFeature } from "../src/graphql/mutations";
 import { listFeatures } from "../src/graphql/queries";
 import {
@@ -21,17 +22,40 @@ import {
 
 function FeaturesTable({ initialFeatures = [], setActiveFeature }) {
   const [, setFeatures] = useState(initialFeatures);
-  const { data: listFeaturesData, isLoading } = useSWR(listFeatures, {
+  const {
+    data: listFeaturesData,
+    isLoading,
+    //mutate,
+  } = useSWR(listFeatures, {
     fallbackData: initialFeatures,
   });
   const features = listFeaturesData?.data?.listFeatures?.items;
+  console.log({ features });
+
+  // bad ergonomics
+  const { data: onCreateFeatureData } = useSWRSubscription(
+    listFeatures,
+    (listFeatures, { next }) => {
+      const createSub = API.graphql(
+        graphqlOperation(onCreateFeature)
+      ).subscribe({
+        next: ({ value }) => {
+          //mutate([...listFeaturesData, value.data.onCreateFeature]);
+          next(null, value.data.onCreateFeature);
+        },
+      });
+      return () => createSub.unsubscribe();
+    }
+  );
+
+  console.log({ onCreateFeatureData });
 
   useEffect(() => {
-    const createSub = API.graphql(graphqlOperation(onCreateFeature)).subscribe({
-      next: ({ value }) => {
-        setFeatures((features) => [...features, value.data.onCreateFeature]);
-      },
-    });
+    // const createSub = API.graphql(graphqlOperation(onCreateFeature)).subscribe({
+    //   next: ({ value }) => {
+    //     setFeatures((features) => [...features, value.data.onCreateFeature]);
+    //   },
+    // });
 
     const updateSub = API.graphql(graphqlOperation(onUpdateFeature)).subscribe({
       next: ({ value }) => {
@@ -66,7 +90,7 @@ function FeaturesTable({ initialFeatures = [], setActiveFeature }) {
     });
 
     return () => {
-      createSub.unsubscribe();
+      //createSub.unsubscribe();
       updateSub.unsubscribe();
       deleteSub.unsubscribe();
     };
