@@ -19,21 +19,26 @@ import {
   onUpdateFeature,
 } from "../src/graphql/subscriptions";
 
-function FeaturesTable({ initialFeatures = [], setActiveFeature }) {
+function FeaturesTable({
+  initialFeatures = { data: { listFeatures: { items: [] } } },
+  setActiveFeature,
+}) {
   const {
     data: listFeaturesData,
     isLoading,
     mutate: mutateListFeatures,
   } = useSWR(listFeatures, {
     fallbackData: initialFeatures,
+    keepPreviousData: false,
   });
 
-  const features = listFeaturesData?.data?.listFeatures?.items;
+  const features = listFeaturesData?.data?.listFeatures?.items ?? [];
   console.log("features: ", features);
 
   useEffect(() => {
     const createSub = API.graphql(graphqlOperation(onCreateFeature)).subscribe({
       next: ({ value }) => {
+        console.log("create event: ", value);
         mutateListFeatures({
           data: {
             listFeatures: {
@@ -49,6 +54,7 @@ function FeaturesTable({ initialFeatures = [], setActiveFeature }) {
 
     const updateSub = API.graphql(graphqlOperation(onUpdateFeature)).subscribe({
       next: ({ value }) => {
+        console.log("updated event: ", value);
         const toUpdateIndex =
           listFeaturesData?.data?.listFeatures?.items.findIndex(
             (item) => item.id === value.data.onUpdateFeature.id
@@ -74,21 +80,23 @@ function FeaturesTable({ initialFeatures = [], setActiveFeature }) {
 
     const deleteSub = API.graphql(graphqlOperation(onDeleteFeature)).subscribe({
       next: ({ value }) => {
+        console.log("delete event: ", value);
         const toDeleteIndex =
           listFeaturesData?.data?.listFeatures?.items.findIndex(
             (item) => item.id === value.data.onDeleteFeature.id
           );
+        console.log(toDeleteIndex);
+        console.log(features.slice(0, toDeleteIndex));
+        console.log(features.slice(toDeleteIndex + 1));
+        if (toDeleteIndex === -1) {
+          return;
+        }
         mutateListFeatures({
           data: {
             listFeatures: {
               items: [
-                ...listFeaturesData?.data?.listFeatures?.items.slice(
-                  0,
-                  toDeleteIndex
-                ),
-                ...listFeaturesData?.data?.listFeatures?.items.slice(
-                  toDeleteIndex + 1
-                ),
+                ...features.slice(0, toDeleteIndex),
+                ...features.slice(toDeleteIndex + 1),
               ],
             },
           },
