@@ -9,7 +9,7 @@ import {
   View,
 } from "@aws-amplify/ui-react";
 import { API, graphqlOperation, Storage } from "aws-amplify";
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import useSWR from "swr";
 import { deleteFeature } from "../src/graphql/mutations";
 import { listFeatures } from "../src/graphql/queries";
@@ -20,15 +20,16 @@ import {
 } from "../src/graphql/subscriptions";
 
 function FeaturesTable({ initialFeatures = [], setActiveFeature }) {
-  const [, setFeatures] = useState(initialFeatures);
-  let {
+  const {
     data: listFeaturesData,
     isLoading,
     mutate: mutateListFeatures,
   } = useSWR(listFeatures, {
     fallbackData: initialFeatures,
   });
+
   const features = listFeaturesData?.data?.listFeatures?.items;
+  console.log("features: ", features);
 
   useEffect(() => {
     const createSub = API.graphql(graphqlOperation(onCreateFeature)).subscribe({
@@ -48,19 +49,26 @@ function FeaturesTable({ initialFeatures = [], setActiveFeature }) {
 
     const updateSub = API.graphql(graphqlOperation(onUpdateFeature)).subscribe({
       next: ({ value }) => {
-        setFeatures((features) => {
-          const toUpdateIndex = features.findIndex(
+        const toUpdateIndex =
+          listFeaturesData?.data?.listFeatures?.items.findIndex(
             (item) => item.id === value.data.onUpdateFeature.id
           );
-          if (toUpdateIndex === -1) {
-            return [...features, value.data.onUpdateFeature];
-          }
+        if (toUpdateIndex === -1) {
           return [
-            ...features.slice(0, toUpdateIndex),
+            ...listFeaturesData?.data?.listFeatures?.items,
             value.data.onUpdateFeature,
-            ...features.slice(toUpdateIndex + 1),
           ];
-        });
+        }
+        return [
+          ...listFeaturesData?.data?.listFeatures?.items.slice(
+            0,
+            toUpdateIndex
+          ),
+          value.data.onUpdateFeature,
+          ...listFeaturesData?.data?.listFeatures?.items.slice(
+            toUpdateIndex + 1
+          ),
+        ];
       },
     });
 
