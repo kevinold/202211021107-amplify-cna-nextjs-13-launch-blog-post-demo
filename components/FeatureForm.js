@@ -11,12 +11,19 @@ import { API, Storage } from "aws-amplify";
 import React, { useEffect, useState } from "react";
 import { createFeature, updateFeature } from "../src/graphql/mutations";
 
+import useSWRMutation from "swr/mutation";
+
 function FeatureForm({ feature = null, setActiveFeature }) {
   const [id, setId] = useState(undefined);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [isReleased, setReleased] = useState(false);
   const [internalDoc, setInternalDoc] = useState("");
+
+  const { trigger: triggerSave } = useSWRMutation(
+    feature ? updateFeature : createFeature,
+    handleSaveFeature
+  );
 
   useEffect(() => {
     if (feature) {
@@ -138,7 +145,7 @@ function FeatureForm({ feature = null, setActiveFeature }) {
           >
             Cancel
           </Button>
-          <Button onClick={() => handleSaveFeature()}>Save</Button>
+          <Button onClick={() => triggerSave()}>Save</Button>
         </Flex>
       </Flex>
     </View>

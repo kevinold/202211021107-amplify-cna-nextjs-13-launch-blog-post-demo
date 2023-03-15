@@ -22,15 +22,15 @@ import {
 
 function FeaturesTable({ initialFeatures = [], setActiveFeature }) {
   const [, setFeatures] = useState(initialFeatures);
-  const {
+  let {
     data: listFeaturesData,
     isLoading,
-    //mutate,
+    mutate: mutateListFeatures,
   } = useSWR(listFeatures, {
     fallbackData: initialFeatures,
   });
-  const features = listFeaturesData?.data?.listFeatures?.items;
-  console.log({ features });
+  let features = listFeaturesData?.data?.listFeatures?.items;
+  console.log(features);
 
   // bad ergonomics
   const { data: onCreateFeatureData } = useSWRSubscription(
@@ -40,7 +40,7 @@ function FeaturesTable({ initialFeatures = [], setActiveFeature }) {
         graphqlOperation(onCreateFeature)
       ).subscribe({
         next: ({ value }) => {
-          //mutate([...listFeaturesData, value.data.onCreateFeature]);
+          mutateListFeatures([...listFeaturesData, value.data.onCreateFeature]);
           next(null, value.data.onCreateFeature);
         },
       });
@@ -77,15 +77,15 @@ function FeaturesTable({ initialFeatures = [], setActiveFeature }) {
 
     const deleteSub = API.graphql(graphqlOperation(onDeleteFeature)).subscribe({
       next: ({ value }) => {
-        setFeatures((features) => {
-          const toDeleteIndex = features.findIndex(
-            (item) => item.id === value.data.onDeleteFeature.id
-          );
-          return [
-            ...features.slice(0, toDeleteIndex),
-            ...features.slice(toDeleteIndex + 1),
-          ];
-        });
+        console.log(typeof features);
+        console.log(features);
+        const toDeleteIndex = features.findIndex(
+          (item) => item.id === value.data.onDeleteFeature.id
+        );
+        features = [
+          ...features.slice(0, toDeleteIndex),
+          ...features.slice(toDeleteIndex + 1),
+        ];
       },
     });
 
