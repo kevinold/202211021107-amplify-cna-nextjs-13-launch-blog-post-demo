@@ -11,7 +11,6 @@ import {
 import { API, graphqlOperation, Storage } from "aws-amplify";
 import React, { useEffect, useState } from "react";
 import useSWR from "swr";
-import useSWRSubscription from "swr/subscription";
 import { deleteFeature } from "../src/graphql/mutations";
 import { listFeatures } from "../src/graphql/queries";
 import {
@@ -29,33 +28,23 @@ function FeaturesTable({ initialFeatures = [], setActiveFeature }) {
   } = useSWR(listFeatures, {
     fallbackData: initialFeatures,
   });
-  let features = listFeaturesData?.data?.listFeatures?.items;
-  console.log(features);
-
-  // bad ergonomics
-  const { data: onCreateFeatureData } = useSWRSubscription(
-    listFeatures,
-    (listFeatures, { next }) => {
-      const createSub = API.graphql(
-        graphqlOperation(onCreateFeature)
-      ).subscribe({
-        next: ({ value }) => {
-          mutateListFeatures([...listFeaturesData, value.data.onCreateFeature]);
-          next(null, value.data.onCreateFeature);
-        },
-      });
-      return () => createSub.unsubscribe();
-    }
-  );
-
-  console.log({ onCreateFeatureData });
+  const features = listFeaturesData?.data?.listFeatures?.items;
 
   useEffect(() => {
-    // const createSub = API.graphql(graphqlOperation(onCreateFeature)).subscribe({
-    //   next: ({ value }) => {
-    //     setFeatures((features) => [...features, value.data.onCreateFeature]);
-    //   },
-    // });
+    const createSub = API.graphql(graphqlOperation(onCreateFeature)).subscribe({
+      next: ({ value }) => {
+        mutateListFeatures({
+          data: {
+            listFeatures: {
+              items: [
+                ...listFeaturesData?.data?.listFeatures?.items,
+                value.data.onCreateFeature,
+              ],
+            },
+          },
+        });
+      },
+    });
 
     const updateSub = API.graphql(graphqlOperation(onUpdateFeature)).subscribe({
       next: ({ value }) => {
@@ -77,20 +66,30 @@ function FeaturesTable({ initialFeatures = [], setActiveFeature }) {
 
     const deleteSub = API.graphql(graphqlOperation(onDeleteFeature)).subscribe({
       next: ({ value }) => {
-        console.log(typeof features);
-        console.log(features);
-        const toDeleteIndex = features.findIndex(
-          (item) => item.id === value.data.onDeleteFeature.id
-        );
-        features = [
-          ...features.slice(0, toDeleteIndex),
-          ...features.slice(toDeleteIndex + 1),
-        ];
+        const toDeleteIndex =
+          listFeaturesData?.data?.listFeatures?.items.findIndex(
+            (item) => item.id === value.data.onDeleteFeature.id
+          );
+        mutateListFeatures({
+          data: {
+            listFeatures: {
+              items: [
+                ...listFeaturesData?.data?.listFeatures?.items.slice(
+                  0,
+                  toDeleteIndex
+                ),
+                ...listFeaturesData?.data?.listFeatures?.items.slice(
+                  toDeleteIndex + 1
+                ),
+              ],
+            },
+          },
+        });
       },
     });
 
     return () => {
-      //createSub.unsubscribe();
+      createSub.unsubscribe();
       updateSub.unsubscribe();
       deleteSub.unsubscribe();
     };
