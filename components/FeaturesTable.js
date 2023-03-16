@@ -9,65 +9,100 @@ import {
   View,
 } from "@aws-amplify/ui-react";
 import { API, graphqlOperation, Storage } from "aws-amplify";
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
+import useSWR from "swr";
 import { deleteFeature } from "../src/graphql/mutations";
 import { listFeatures } from "../src/graphql/queries";
-import {
-  onCreateFeature,
-  onDeleteFeature,
-  onUpdateFeature,
-} from "../src/graphql/subscriptions";
+import { onDeleteFeature, onUpdateFeature } from "../src/graphql/subscriptions";
 
-function FeaturesTable({ initialFeatures = [], setActiveFeature }) {
-  const [features, setFeatures] = useState(initialFeatures);
+function FeaturesTable({
+  initialFeatures = { data: { listFeatures: { items: [] } } },
+  setActiveFeature,
+}) {
+  const {
+    data: listFeaturesData,
+    isLoading,
+    mutate: mutateListFeatures,
+  } = useSWR(listFeatures, {
+    fallbackData: initialFeatures,
+    //keepPreviousData: false,
+    //revalidateOnMount: false,
+  });
+
+  const features = listFeaturesData?.data?.listFeatures?.items ?? [];
+  console.log("features: ", features);
 
   useEffect(() => {
-    const fetchFeatures = async () => {
-      const result = await API.graphql(graphqlOperation(listFeatures));
-      setFeatures(result.data.listFeatures.items);
-    };
-
-    fetchFeatures();
-    const createSub = API.graphql(graphqlOperation(onCreateFeature)).subscribe({
-      next: ({ value }) => {
-        setFeatures((features) => [...features, value.data.onCreateFeature]);
-      },
-    });
+    // const createSub = API.graphql(graphqlOperation(onCreateFeature)).subscribe({
+    //   next: ({ value }) => {
+    //     console.log("create event: ", value);
+    //     mutateListFeatures({
+    //       data: {
+    //         listFeatures: {
+    //           items: [
+    //             ...listFeaturesData?.data?.listFeatures?.items,
+    //             value.data.onCreateFeature,
+    //           ],
+    //         },
+    //       },
+    //     });
+    //   },
+    // });
 
     const updateSub = API.graphql(graphqlOperation(onUpdateFeature)).subscribe({
       next: ({ value }) => {
-        setFeatures((features) => {
-          const toUpdateIndex = features.findIndex(
+        console.log("updated event: ", value);
+        const toUpdateIndex =
+          listFeaturesData?.data?.listFeatures?.items.findIndex(
             (item) => item.id === value.data.onUpdateFeature.id
           );
-          if (toUpdateIndex === -1) {
-            return [...features, value.data.onUpdateFeature];
-          }
+        if (toUpdateIndex === -1) {
           return [
-            ...features.slice(0, toUpdateIndex),
+            ...listFeaturesData?.data?.listFeatures?.items,
             value.data.onUpdateFeature,
-            ...features.slice(toUpdateIndex + 1),
           ];
-        });
+        }
+        return [
+          ...listFeaturesData?.data?.listFeatures?.items.slice(
+            0,
+            toUpdateIndex
+          ),
+          value.data.onUpdateFeature,
+          ...listFeaturesData?.data?.listFeatures?.items.slice(
+            toUpdateIndex + 1
+          ),
+        ];
       },
     });
 
     const deleteSub = API.graphql(graphqlOperation(onDeleteFeature)).subscribe({
       next: ({ value }) => {
-        setFeatures((features) => {
-          const toDeleteIndex = features.findIndex(
+        console.log("delete event: ", value);
+        const toDeleteIndex =
+          listFeaturesData?.data?.listFeatures?.items.findIndex(
             (item) => item.id === value.data.onDeleteFeature.id
           );
-          return [
-            ...features.slice(0, toDeleteIndex),
-            ...features.slice(toDeleteIndex + 1),
-          ];
+        console.log(toDeleteIndex);
+        console.log(features.slice(0, toDeleteIndex));
+        console.log(features.slice(toDeleteIndex + 1));
+        if (toDeleteIndex === -1) {
+          return;
+        }
+        mutateListFeatures({
+          data: {
+            listFeatures: {
+              items: [
+                ...features.slice(0, toDeleteIndex),
+                ...features.slice(toDeleteIndex + 1),
+              ],
+            },
+          },
         });
       },
     });
 
     return () => {
-      createSub.unsubscribe();
+      //createSub.unsubscribe();
       updateSub.unsubscribe();
       deleteSub.unsubscribe();
     };
@@ -118,7 +153,7 @@ function FeaturesTable({ initialFeatures = [], setActiveFeature }) {
     }
   }
 
-  if (features.length === 0) {
+  if (initialFeatures.length === 0 && isLoading) {
     return <View>No features</View>;
   }
 
