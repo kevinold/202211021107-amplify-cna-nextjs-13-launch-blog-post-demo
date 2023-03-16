@@ -31,6 +31,8 @@ function FeatureForm({ feature = null, setActiveFeature }) {
 
       queryClient.setQueryData(["features"], (old) => [...old, newFeature]);
 
+      feature && setActiveFeature(undefined);
+      resetFormFields();
       return { previousFeatures };
     },
     onError: (err, newFeature, context) => {
@@ -94,22 +96,13 @@ function FeatureForm({ feature = null, setActiveFeature }) {
   }
 
   async function handleSaveFeature(newFeature) {
-    console.log("handleSaveFeature", newFeature);
-    try {
-      await API.graphql({
-        authMode: "AMAZON_COGNITO_USER_POOLS",
-        query: feature ? updateFeature : createFeature,
-        variables: {
-          input: newFeature,
-        },
-      });
-
-      feature && setActiveFeature(undefined);
-      resetFormFields();
-    } catch ({ errors }) {
-      console.error(...errors);
-      throw new Error(errors[0].message);
-    }
+    await API.graphql({
+      authMode: "AMAZON_COGNITO_USER_POOLS",
+      query: feature ? updateFeature : createFeature,
+      variables: {
+        input: newFeature,
+      },
+    });
   }
 
   return (

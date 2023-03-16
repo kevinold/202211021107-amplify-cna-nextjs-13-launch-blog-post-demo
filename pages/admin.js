@@ -15,8 +15,10 @@ import { listFeatures } from "../src/graphql/queries";
 
 export async function getServerSideProps({ req }) {
   const SSR = withSSRContext({ req });
-  const response = await SSR.API.graphql({ query: listFeatures });
-
+  const response = await SSR.API.graphql({
+    authMode: "AMAZON_COGNITO_USER_POOLS",
+    query: listFeatures,
+  });
   return {
     props: {
       initialFeatures: response.data.listFeatures.items,
