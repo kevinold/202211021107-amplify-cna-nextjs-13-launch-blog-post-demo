@@ -25,7 +25,8 @@ function FeaturesTable({
     mutate: mutateListFeatures,
   } = useSWR(listFeatures, {
     fallbackData: initialFeatures,
-    keepPreviousData: false,
+    //keepPreviousData: false,
+    //revalidateOnMount: false,
   });
 
   const features = listFeaturesData?.data?.listFeatures?.items ?? [];
