@@ -13,11 +13,7 @@ import React, { useEffect } from "react";
 import useSWR from "swr";
 import { deleteFeature } from "../src/graphql/mutations";
 import { listFeatures } from "../src/graphql/queries";
-import {
-  onCreateFeature,
-  onDeleteFeature,
-  onUpdateFeature,
-} from "../src/graphql/subscriptions";
+import { onDeleteFeature, onUpdateFeature } from "../src/graphql/subscriptions";
 
 function FeaturesTable({
   initialFeatures = { data: { listFeatures: { items: [] } } },
@@ -36,21 +32,21 @@ function FeaturesTable({
   console.log("features: ", features);
 
   useEffect(() => {
-    const createSub = API.graphql(graphqlOperation(onCreateFeature)).subscribe({
-      next: ({ value }) => {
-        console.log("create event: ", value);
-        mutateListFeatures({
-          data: {
-            listFeatures: {
-              items: [
-                ...listFeaturesData?.data?.listFeatures?.items,
-                value.data.onCreateFeature,
-              ],
-            },
-          },
-        });
-      },
-    });
+    // const createSub = API.graphql(graphqlOperation(onCreateFeature)).subscribe({
+    //   next: ({ value }) => {
+    //     console.log("create event: ", value);
+    //     mutateListFeatures({
+    //       data: {
+    //         listFeatures: {
+    //           items: [
+    //             ...listFeaturesData?.data?.listFeatures?.items,
+    //             value.data.onCreateFeature,
+    //           ],
+    //         },
+    //       },
+    //     });
+    //   },
+    // });
 
     const updateSub = API.graphql(graphqlOperation(onUpdateFeature)).subscribe({
       next: ({ value }) => {
@@ -105,7 +101,7 @@ function FeaturesTable({
     });
 
     return () => {
-      createSub.unsubscribe();
+      //createSub.unsubscribe();
       updateSub.unsubscribe();
       deleteSub.unsubscribe();
     };

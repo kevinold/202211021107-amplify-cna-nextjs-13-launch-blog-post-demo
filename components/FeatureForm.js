@@ -9,19 +9,21 @@ import {
 } from "@aws-amplify/ui-react";
 import { API, Storage } from "aws-amplify";
 import React, { useEffect, useState } from "react";
+import { v4 } from "uuid";
 import { createFeature, updateFeature } from "../src/graphql/mutations";
+import { listFeatures } from "../src/graphql/queries";
 
 import useSWRMutation from "swr/mutation";
 
 function FeatureForm({ feature = null, setActiveFeature }) {
-  const [id, setId] = useState(undefined);
+  const [id, setId] = useState("");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [isReleased, setReleased] = useState(false);
   const [internalDoc, setInternalDoc] = useState("");
 
   const { trigger: triggerSave } = useSWRMutation(
-    feature ? updateFeature : createFeature,
+    listFeatures,
     handleSaveFeature
   );
 
@@ -66,13 +68,17 @@ function FeatureForm({ feature = null, setActiveFeature }) {
   }
 
   async function handleSaveFeature() {
+    const newId = v4();
+    setId(newId);
+    console.log("newId: ", newId);
     try {
       await API.graphql({
         authMode: "AMAZON_COGNITO_USER_POOLS",
         query: feature ? updateFeature : createFeature,
         variables: {
           input: {
-            id: feature ? id : undefined,
+            //id: feature ? id : undefined,
+            id: newId,
             title,
             description,
             released: isReleased,
@@ -82,7 +88,7 @@ function FeatureForm({ feature = null, setActiveFeature }) {
       });
 
       feature && setActiveFeature(undefined);
-      resetFormFields();
+      //resetFormFields();
     } catch ({ errors }) {
       console.error(...errors);
       throw new Error(errors[0].message);
@@ -145,7 +151,36 @@ function FeatureForm({ feature = null, setActiveFeature }) {
           >
             Cancel
           </Button>
-          <Button onClick={() => triggerSave()}>Save</Button>
+          <Button
+            onClick={() => {
+              triggerSave(undefined, {
+                optimisticData: (current) => {
+                  console.log("oD current: ", current);
+                  const newFeature = {
+                    id,
+                    title,
+                    description,
+                    released: isReleased,
+                    internalDoc: internalDoc,
+                  };
+                  resetFormFields();
+                  return {
+                    data: {
+                      listFeatures: {
+                        items: [
+                          // @ts-ignore
+                          ...current.data.listFeatures.items,
+                          newFeature,
+                        ],
+                      },
+                    },
+                  };
+                },
+              });
+            }}
+          >
+            Save
+          </Button>
         </Flex>
       </Flex>
     </View>
