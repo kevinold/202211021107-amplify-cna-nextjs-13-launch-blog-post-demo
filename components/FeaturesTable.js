@@ -8,6 +8,7 @@ import {
   TableRow,
   View,
 } from "@aws-amplify/ui-react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { API, graphqlOperation, Storage } from "aws-amplify";
 import React, { useEffect, useState } from "react";
 import { deleteFeature } from "../src/graphql/mutations";
@@ -17,17 +18,23 @@ import {
   onDeleteFeature,
   onUpdateFeature,
 } from "../src/graphql/subscriptions";
+const fetchFeatures = async () => {
+  const result = await API.graphql(graphqlOperation(listFeatures));
+  return result.data.listFeatures.items;
+};
 
 function FeaturesTable({ initialFeatures = [], setActiveFeature }) {
-  const [features, setFeatures] = useState(initialFeatures);
+  const [oldfeatures, setFeatures] = useState(initialFeatures);
+
+  const queryClient = useQueryClient();
+
+  const { data: features, isLoading } = useQuery({
+    queryKey: ["features"],
+    queryFn: fetchFeatures,
+    initialData: initialFeatures,
+  });
 
   useEffect(() => {
-    const fetchFeatures = async () => {
-      const result = await API.graphql(graphqlOperation(listFeatures));
-      setFeatures(result.data.listFeatures.items);
-    };
-
-    fetchFeatures();
     const createSub = API.graphql(graphqlOperation(onCreateFeature)).subscribe({
       next: ({ value }) => {
         setFeatures((features) => [...features, value.data.onCreateFeature]);
@@ -118,7 +125,7 @@ function FeaturesTable({ initialFeatures = [], setActiveFeature }) {
     }
   }
 
-  if (features.length === 0) {
+  if (isLoading) {
     return <View>No features</View>;
   }
 
