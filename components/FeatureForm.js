@@ -7,8 +7,10 @@ import {
   TextField,
   View,
 } from "@aws-amplify/ui-react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { API, Storage } from "aws-amplify";
 import React, { useEffect, useState } from "react";
+import { v4 } from "uuid";
 import { createFeature, updateFeature } from "../src/graphql/mutations";
 
 function FeatureForm({ feature = null, setActiveFeature }) {
@@ -17,6 +19,27 @@ function FeatureForm({ feature = null, setActiveFeature }) {
   const [description, setDescription] = useState("");
   const [isReleased, setReleased] = useState(false);
   const [internalDoc, setInternalDoc] = useState("");
+
+  const queryClient = useQueryClient();
+
+  const saveFeature = useMutation({
+    mutationFn: handleSaveFeature,
+    onMutate: async (newFeature) => {
+      await queryClient.cancelQueries({ queryKey: ["features"] });
+
+      const previousFeatures = queryClient.getQueryData(["features"]);
+
+      queryClient.setQueryData(["features"], (old) => [...old, newFeature]);
+
+      return { previousFeatures };
+    },
+    onError: (err, newFeature, context) => {
+      queryClient.setQueryData(["features"], context.previousFeatures);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["features"] });
+    },
+  });
 
   useEffect(() => {
     if (feature) {
@@ -58,19 +81,26 @@ function FeatureForm({ feature = null, setActiveFeature }) {
     setInternalDoc("");
   }
 
-  async function handleSaveFeature() {
+  function createNewFeature() {
+    const newFeature = {
+      id: id || v4(),
+      title,
+      description,
+      released: isReleased,
+      internalDoc: internalDoc,
+    };
+
+    return newFeature;
+  }
+
+  async function handleSaveFeature(newFeature) {
+    console.log("handleSaveFeature", newFeature);
     try {
       await API.graphql({
         authMode: "AMAZON_COGNITO_USER_POOLS",
         query: feature ? updateFeature : createFeature,
         variables: {
-          input: {
-            id: feature ? id : undefined,
-            title,
-            description,
-            released: isReleased,
-            internalDoc: internalDoc,
-          },
+          input: newFeature,
         },
       });
 
@@ -138,7 +168,14 @@ function FeatureForm({ feature = null, setActiveFeature }) {
           >
             Cancel
           </Button>
-          <Button onClick={() => handleSaveFeature()}>Save</Button>
+          <Button
+            onClick={() => {
+              const newFeature = createNewFeature();
+              saveFeature.mutate(newFeature);
+            }}
+          >
+            Save
+          </Button>
         </Flex>
       </Flex>
     </View>
