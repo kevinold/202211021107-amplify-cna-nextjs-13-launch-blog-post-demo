@@ -10,7 +10,7 @@ import {
 } from "@aws-amplify/ui-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { API, graphqlOperation, Storage } from "aws-amplify";
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { deleteFeature } from "../src/graphql/mutations";
 import { listFeatures } from "../src/graphql/queries";
 import {
@@ -19,17 +19,20 @@ import {
   onUpdateFeature,
 } from "../src/graphql/subscriptions";
 const fetchFeatures = async () => {
-  const result = await API.graphql(graphqlOperation(listFeatures));
+  const result = await API.graphql({
+    authMode: "AMAZON_COGNITO_USER_POOLS",
+    query: listFeatures,
+  });
   return result.data.listFeatures.items;
 };
 
 function FeaturesTable({ initialFeatures = [], setActiveFeature }) {
-  const [oldfeatures, setFeatures] = useState(initialFeatures);
+  const featuresQueryKey = ["features"];
 
   const queryClient = useQueryClient();
 
   const { data: features, isLoading } = useQuery({
-    queryKey: ["features"],
+    queryKey: featuresQueryKey,
     queryFn: fetchFeatures,
     initialData: initialFeatures,
   });
@@ -37,23 +40,25 @@ function FeaturesTable({ initialFeatures = [], setActiveFeature }) {
   useEffect(() => {
     const createSub = API.graphql(graphqlOperation(onCreateFeature)).subscribe({
       next: ({ value }) => {
-        setFeatures((features) => [...features, value.data.onCreateFeature]);
+        queryClient.setQueryData(featuresQueryKey, (current) => {
+          return [...current, value.data.onCreateFeature];
+        });
       },
     });
 
     const updateSub = API.graphql(graphqlOperation(onUpdateFeature)).subscribe({
       next: ({ value }) => {
-        setFeatures((features) => {
-          const toUpdateIndex = features.findIndex(
+        queryClient.setQueryData(featuresQueryKey, (current) => {
+          const toUpdateIndex = current.findIndex(
             (item) => item.id === value.data.onUpdateFeature.id
           );
           if (toUpdateIndex === -1) {
-            return [...features, value.data.onUpdateFeature];
+            return [...current, value.data.onCreateFeature];
           }
           return [
-            ...features.slice(0, toUpdateIndex),
+            ...current.slice(0, toUpdateIndex),
             value.data.onUpdateFeature,
-            ...features.slice(toUpdateIndex + 1),
+            ...current.slice(toUpdateIndex + 1),
           ];
         });
       },
@@ -61,13 +66,13 @@ function FeaturesTable({ initialFeatures = [], setActiveFeature }) {
 
     const deleteSub = API.graphql(graphqlOperation(onDeleteFeature)).subscribe({
       next: ({ value }) => {
-        setFeatures((features) => {
-          const toDeleteIndex = features.findIndex(
+        queryClient.setQueryData(featuresQueryKey, (current) => {
+          const toDeleteIndex = current.findIndex(
             (item) => item.id === value.data.onDeleteFeature.id
           );
           return [
-            ...features.slice(0, toDeleteIndex),
-            ...features.slice(toDeleteIndex + 1),
+            ...current.slice(0, toDeleteIndex),
+            ...current.slice(toDeleteIndex + 1),
           ];
         });
       },
