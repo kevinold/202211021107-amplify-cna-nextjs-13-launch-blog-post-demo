@@ -41,6 +41,12 @@ function FeaturesTable({ initialFeatures = [], setActiveFeature }) {
     const createSub = API.graphql(graphqlOperation(onCreateFeature)).subscribe({
       next: ({ value }) => {
         queryClient.setQueryData(featuresQueryKey, (current) => {
+          const toCreateIndex = current.findIndex(
+            (item) => item.id === value.data.onCreateFeature.id
+          );
+          if (toCreateIndex) {
+            return current;
+          }
           return [...current, value.data.onCreateFeature];
         });
       },
