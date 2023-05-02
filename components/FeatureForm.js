@@ -19,27 +19,28 @@ function FeatureForm({ feature = null, setActiveFeature }) {
   const [description, setDescription] = useState("");
   const [isReleased, setReleased] = useState(false);
   const [internalDoc, setInternalDoc] = useState("");
+  const featuresQueryKey = ["features"];
 
   const queryClient = useQueryClient();
 
   const saveFeature = useMutation({
     mutationFn: handleSaveFeature,
     onMutate: async (newFeature) => {
-      await queryClient.cancelQueries({ queryKey: ["features"] });
+      await queryClient.cancelQueries({ queryKey: featuresQueryKey });
 
-      const previousFeatures = queryClient.getQueryData(["features"]);
+      const previousFeatures = queryClient.getQueryData(featuresQueryKey);
 
-      queryClient.setQueryData(["features"], (old) => [...old, newFeature]);
+      queryClient.setQueryData(featuresQueryKey, (old) => [...old, newFeature]);
 
       feature && setActiveFeature(undefined);
       resetFormFields();
       return { previousFeatures };
     },
     onError: (err, newFeature, context) => {
-      queryClient.setQueryData(["features"], context.previousFeatures);
+      queryClient.setQueryData(featuresQueryKey, context.previousFeatures);
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ["features"] });
+      queryClient.invalidateQueries({ queryKey: featuresQueryKey });
     },
   });
 
