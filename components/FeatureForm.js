@@ -7,8 +7,10 @@ import {
   TextField,
   View,
 } from "@aws-amplify/ui-react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { API, Storage } from "aws-amplify";
 import React, { useEffect, useState } from "react";
+import { v4 } from "uuid";
 import { createFeature, updateFeature } from "../src/graphql/mutations";
 
 function FeatureForm({ feature = null, setActiveFeature }) {
@@ -17,6 +19,30 @@ function FeatureForm({ feature = null, setActiveFeature }) {
   const [description, setDescription] = useState("");
   const [isReleased, setReleased] = useState(false);
   const [internalDoc, setInternalDoc] = useState("");
+  const featuresQueryKey = ["features"];
+
+  const queryClient = useQueryClient();
+
+  const saveFeature = useMutation({
+    mutationFn: handleSaveFeature,
+    onMutate: async (newFeature) => {
+      await queryClient.cancelQueries({ queryKey: featuresQueryKey });
+
+      const previousFeatures = queryClient.getQueryData(featuresQueryKey);
+
+      queryClient.setQueryData(featuresQueryKey, (old) => [...old, newFeature]);
+
+      feature && setActiveFeature(undefined);
+      resetFormFields();
+      return { previousFeatures };
+    },
+    onError: (err, newFeature, context) => {
+      queryClient.setQueryData(featuresQueryKey, context.previousFeatures);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: featuresQueryKey });
+    },
+  });
 
   useEffect(() => {
     if (feature) {
@@ -58,28 +84,26 @@ function FeatureForm({ feature = null, setActiveFeature }) {
     setInternalDoc("");
   }
 
-  async function handleSaveFeature() {
-    try {
-      await API.graphql({
-        authMode: "AMAZON_COGNITO_USER_POOLS",
-        query: feature ? updateFeature : createFeature,
-        variables: {
-          input: {
-            id: feature ? id : undefined,
-            title,
-            description,
-            released: isReleased,
-            internalDoc: internalDoc,
-          },
-        },
-      });
+  function createNewFeature() {
+    const newFeature = {
+      id: id || v4(),
+      title,
+      description,
+      released: isReleased,
+      internalDoc: internalDoc,
+    };
 
-      feature && setActiveFeature(undefined);
-      resetFormFields();
-    } catch ({ errors }) {
-      console.error(...errors);
-      throw new Error(errors[0].message);
-    }
+    return newFeature;
+  }
+
+  async function handleSaveFeature(newFeature) {
+    await API.graphql({
+      authMode: "AMAZON_COGNITO_USER_POOLS",
+      query: feature ? updateFeature : createFeature,
+      variables: {
+        input: newFeature,
+      },
+    });
   }
 
   return (
@@ -138,7 +162,14 @@ function FeatureForm({ feature = null, setActiveFeature }) {
           >
             Cancel
           </Button>
-          <Button onClick={() => handleSaveFeature()}>Save</Button>
+          <Button
+            onClick={() => {
+              const newFeature = createNewFeature();
+              saveFeature.mutate(newFeature);
+            }}
+          >
+            Save
+          </Button>
         </Flex>
       </Flex>
     </View>
